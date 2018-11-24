@@ -1,3 +1,4 @@
+import 'package:YouAudio/channelPage.dart';
 import 'package:flutter/material.dart';
 
 class Subscriptions extends StatefulWidget {
@@ -48,7 +49,7 @@ class SubscriptionsState extends State<Subscriptions> {
                 trailing: new Checkbox(value: false, onChanged: null),
                 onTap: () => Navigator.push(context, new MaterialPageRoute(
                     builder: (BuildContext context) =>
-                        new ChannelPage(id: items[position].id)
+                        new ChannelPage(items[position].id)
                 ),
                 ),
             );

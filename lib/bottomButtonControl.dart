@@ -1,5 +1,5 @@
+import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_podcaster/theme.dart';
 
 class BottomControl extends StatelessWidget {
   const BottomControl({

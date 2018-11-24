@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_podcaster/playPage.dart';
-import 'package:youtube_podcaster/searchPage.dart';
-import 'package:youtube_podcaster/subscritonsPage.dart';
-import 'package:youtube_podcaster/theme.dart';
+import 'package:YouAudio/playPage.dart';
+import 'package:YouAudio/searchPage.dart';
+import 'package:YouAudio/subscritonsPage.dart';
+import 'package:YouAudio/theme.dart';
 
 void main() {
   runApp(new MaterialApp(

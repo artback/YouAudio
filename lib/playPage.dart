@@ -1,5 +1,5 @@
+import 'package:YouAudio/bottomButtonControl.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_podcaster/bottomButtonControl.dart';
 
 class Play extends StatelessWidget {
   @override
