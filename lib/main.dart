@@ -54,6 +54,6 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
         ),
         body: new TabBarView(
             controller: controller,
-            children: <Widget>[new Play(), new Subscriptions()]));
+            children: <Widget>[new Play(), new SubscriptionsPage()]));
   }
 }

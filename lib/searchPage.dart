@@ -20,10 +20,9 @@ class _SearchListState extends State<SearchList>
   @override
   void initState() {
     super.initState();
-
     init();
-
   }
+
   _SearchListState() {
     _searchQuery.addListener(() {
       if (_searchQuery.text.isEmpty) {

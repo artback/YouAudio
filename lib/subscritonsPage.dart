@@ -1,15 +1,15 @@
 import 'package:YouAudio/channelPage.dart';
 import 'package:flutter/material.dart';
 
-class Subscriptions extends StatefulWidget {
+class SubscriptionsPage extends StatefulWidget {
 
   @override
-  SubscriptionsState createState() {
-    return new SubscriptionsState();
+  SubscriptionsPageState createState() {
+    return new SubscriptionsPageState();
   }
 }
 
-class SubscriptionsState extends State<Subscriptions> {
+class SubscriptionsPageState extends State<SubscriptionsPage> {
   final List<Post> items = new List();
   @override
   void initState() {

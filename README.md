@@ -1,4 +1,4 @@
-# youtube_podcaster
+# YouAudio
 
 A podcaster application for youtube
 

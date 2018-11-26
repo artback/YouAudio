@@ -13,7 +13,6 @@ class BottomControl extends StatelessWidget {
         child: new Material(
           color: accentColor,
           child:
-            //@TODO add an seekbar
             new Padding(
             padding: const EdgeInsets.only(top:30.0,bottom: 40.0),
             child: new Column(
