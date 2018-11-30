@@ -63,19 +63,24 @@ class FileListState extends State<FileList> {
   }
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
-      itemCount: data == null ? 0 : data.length,
-      itemBuilder: (BuildContext context, int position){
-        return ListTile(
+    return new Container
+      (
+      child: ListView.builder(
+        itemCount: videos == null ? 0 : videos.length,
+        itemBuilder: (BuildContext context, int position) {
+          return ListTile(
             title: RichText(
-            text: new TextSpan(
-            text:'${videos[position].name}',
-            style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,color: Colors.black),
-        ),
-        ),
-        subtitle: Text('${videos[position].description}'),
-        );
-      },
+              text: new TextSpan(
+                text: '${videos[position].name}',
+                style: TextStyle(fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black),
+              ),
+            ),
+            subtitle: Text('${videos[position].description}'),
+          );
+        },
+      )
     );
   }
 }

@@ -8,18 +8,19 @@ class SearchList extends StatefulWidget {
 
 }
 
-class _SearchListState extends State<SearchList>
+class _SearchListState extends State<SearchList> with SingleTickerProviderStateMixin
 {
   Widget appBarTitle = new Text("", style: new TextStyle(color: Colors.white),);
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
   List<String> _list;
   String _searchText = "";
-
+  TabController controller;
 
   @override
   void initState() {
     super.initState();
+    controller = new TabController(vsync: this, length: 3);
     init();
   }
 
@@ -51,10 +52,16 @@ class _SearchListState extends State<SearchList>
     return new Scaffold(
       key: key,
       appBar: buildBar(context),
-      body: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children:  _buildSearchList(),
-      ),
+        body: new TabBarView(
+            controller: controller,
+            children: <Widget>[buildListView(),buildListView(),buildListView()])
+    );
+  }
+
+  ListView buildListView() {
+    return new ListView(
+      padding: new EdgeInsets.symmetric(vertical: 8.0),
+      children:  _buildSearchList(),
     );
   }
 
@@ -93,7 +100,12 @@ class _SearchListState extends State<SearchList>
               hintText: "Search...",
               hintStyle: new TextStyle(color: Colors.white)
           ),
-        )
+        ),
+        bottom: new TabBar(controller: controller, tabs: <Tab>[
+          new Tab(text: 'Local'),
+          new Tab(text: 'Videos'),
+          new Tab(text: 'Channel'),
+        ]),
     );
   }
 

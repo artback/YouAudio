@@ -69,7 +69,7 @@ class ChannelPageState extends State<ChannelPage> {
                 subtitle: Text('${videos[position].description}'),
                 trailing: videos[position].downloaded ?
                 new IconButton(icon: new Icon(Icons.file_download), onPressed: null) :
-                new IconButton(icon: new Icon(Icons.playlist_play), onPressed: null)
+                new IconButton(icon: new Icon(Icons.play_arrow), onPressed: null)
               );
             },
           )
