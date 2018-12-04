@@ -1,8 +1,12 @@
+import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:flutter/material.dart';
 import 'package:YouAudio/playPage.dart';
 import 'package:YouAudio/searchPage.dart';
 import 'package:YouAudio/subscritonsPage.dart';
 import 'package:YouAudio/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:youtube_extractor/youtube_extractor.dart';
+var extractor = YouTubeExtractor();
 
 void main() {
   runApp(new MaterialApp(
@@ -21,12 +25,20 @@ class MyTabs extends StatefulWidget {
 }
 
 class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
+  static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
-
   @override
   void initState() {
     super.initState();
+    getSharedText();
     controller = new TabController(vsync: this, length: 3);
+  }
+
+  getSharedText() async {
+    var sharedData = await platform.invokeMethod("getSharedText");
+    if (sharedData != null) {
+     getAndDownloadYoutubeAudio(sharedData);
+    }
   }
 
   @override

@@ -1,6 +1,8 @@
 package se.podcast.youtube.mp3.youtubepodcaster;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 
@@ -21,26 +23,39 @@ public class MainActivity extends FlutterActivity {
     Intent intent = getIntent();
     String action = intent.getAction();
     String type = intent.getType();
+    boolean intentError;
 
     if (Intent.ACTION_SEND.equals(action) && type != null) {
       if ("text/plain".equals(type)) {
-        handleSendText(intent); // Handle text being sent
+        intentError = handleSendText(intent); // Handle text being sent
+        if(intentError) {
+          finish();
+        }
       }
     }
-
-    new MethodChannel(getFlutterView(), "app.channel.shared.data").setMethodCallHandler(
-      new MethodChannel.MethodCallHandler() {
-        @Override
-        public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-          if (call.method.contentEquals("getSharedText")) {
-            result.success(sharedText);
-            sharedText = null;
-          }
-        }
-      });
+      new MethodChannel(getFlutterView(), "app.channel.shared.data").setMethodCallHandler(
+              new MethodChannel.MethodCallHandler() {
+                @Override
+                public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                  if (call.method.contentEquals("getSharedText")) {
+                    result.success(sharedText);
+                    sharedText = null;
+                  }
+                }
+              });
   }
-
-  void handleSendText(Intent intent) {
-    sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+  boolean handleSendText(Intent intent) {
+    boolean intentError = false;
+    String extra =  intent.getStringExtra(Intent.EXTRA_TEXT);
+    if(extra.contains("youtube")) {
+      sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+    }else{
+      Context context = getApplicationContext();
+      int duration = Toast.LENGTH_SHORT;
+      CharSequence text = String.format("Error: %s is not a valid Youtube link",extra);
+      Toast.makeText(context, text , duration).show();
+      intentError = true;
+    }
+    return intentError;
   }
 }
