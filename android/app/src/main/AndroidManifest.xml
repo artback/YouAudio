@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="se.podcast.youtube.mp3.youtubepodcaster">
 
     <!-- The INTERNET permission is required for development. Specifically,
@@ -14,6 +15,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
+        tools:replace="label"
         android:label="YouAudio"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -37,26 +39,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:host="www.youtube.com"
-                    android:mimeType="text/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:host="m.youtube.com"
-                    android:mimeType="text/plain" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <provider
-            android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"
-            android:authorities="${applicationId}.flutter_downloader.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
-        </provider>
     </application>
 </manifest>

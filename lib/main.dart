@@ -26,24 +26,26 @@ class MyTabs extends StatefulWidget {
 class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
+  Downloader downloader ;
 
   @override
   void initState() {
     super.initState();
     getSharedText();
     controller = new TabController(vsync: this, length: 3);
+    downloader = new Downloader();
   }
 
   getSharedText() async {
     getPermission(status) {
       if (!status)
-        SimplePermissions.getPermissionStatus(Permission.WriteExternalStorage);
+        SimplePermissions.requestPermission(Permission.WriteExternalStorage);
     }
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
       SimplePermissions.checkPermission(Permission.WriteExternalStorage)
           .then((status) => getPermission(status))
-          .whenComplete(() => getAndDownloadYoutubeAudio(sharedData));
+          .whenComplete(() => downloader.getAndDownloadYoutubeAudio(sharedData));
     }
   }
 
