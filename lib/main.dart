@@ -1,5 +1,4 @@
 import 'package:YouAudio/YoutubeToAudio.dart';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:YouAudio/playPage.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:simple_permissions/simple_permissions.dart';
+
 var extractor = YouTubeExtractor();
 
 void main() {
@@ -28,11 +28,10 @@ class MyTabs extends StatefulWidget {
   MyTabsState createState() => new MyTabsState();
 }
 
-class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
+class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
   Downloader downloader;
-
 
   getSharedText() async {
     getPermission(status) {
@@ -48,6 +47,7 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
               () => downloader.getAndDownloadYoutubeAudio(sharedData));
     }
   }
+
   GoogleSignInAccount _currentUser;
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -64,7 +64,7 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
     controller = new TabController(vsync: this, length: 3);
     downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
-      if(account == null) {
+      if (account == null) {
         _handleSignIn();
       }
     });
