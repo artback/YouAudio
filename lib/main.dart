@@ -1,4 +1,6 @@
 import 'package:YouAudio/YoutubeToAudio.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:YouAudio/playPage.dart';
 import 'package:YouAudio/searchPage.dart';
@@ -6,6 +8,8 @@ import 'package:YouAudio/subscritonsPage.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import "package:http/http.dart" as http;
 var extractor = YouTubeExtractor();
 
 void main() {
@@ -37,7 +41,34 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   getSharedText() async {
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
-     getAndDownloadYoutubeAudio(sharedData);
+      getAndDownloadYoutubeAudio(sharedData);
+    }
+  }
+  GoogleSignInAccount _currentUser;
+
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/youtube.readonly',
+    ],
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
+      if(account == null) {
+        _handleSignIn();
+      }
+    });
+    controller = new TabController(vsync: this, length: 3);
+  }
+
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print("Something went wrong: $error");
     }
   }
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:http/http.dart' as http;
 var extractor = YouTubeExtractor();
 
@@ -29,10 +28,4 @@ youtubeToAudio( String url)async{
   return streamInfo.audio.first.url;
 }
 downloadAudioUrl(String audioUrl, String downloadLocation ) async {
-  final taskId = await FlutterDownloader.enqueue(
-    url: audioUrl,
-    savedDir: downloadLocation,
-    showNotification: true, // show download progress in status bar (for Android)
-    openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-  );
 }
