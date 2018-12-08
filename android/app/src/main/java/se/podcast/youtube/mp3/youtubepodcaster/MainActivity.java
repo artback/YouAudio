@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import java.nio.ByteBuffer;
+
+import com.liulishuo.okdownload.DownloadTask;
+
+import java.io.File;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.ActivityLifecycleListener;
@@ -13,7 +16,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
-
+  private static final String CHANNEL = "com.yaudio";
   private String sharedText;
 
   @Override
@@ -43,6 +46,18 @@ public class MainActivity extends FlutterActivity {
                   }
                 }
               });
+      new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
+                new MethodChannel.MethodCallHandler() {
+                  @Override
+                  public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                    if (call.method.contentEquals("download")) {
+                      String url = call.argument("url");
+                      File folder = new File((String) call.argument("folder"));
+                      String filename = call.argument("filename");
+                      download(url,folder,filename);
+                    }
+                  }
+                });
   }
   boolean handleSendText(Intent intent) {
     boolean intentError = false;
@@ -57,5 +72,18 @@ public class MainActivity extends FlutterActivity {
       intentError = true;
     }
     return intentError;
+  }
+  private void download(String url,File folder,String filename){
+
+    DownloadTask task = new DownloadTask.Builder(url, folder)
+            .setFilename(filename)
+            // the minimal interval millisecond for callback progress
+            .setMinIntervalMillisCallbackProcess(30)
+            // do re-download even if the task has already been completed in the past.
+            .setPassIfAlreadyCompleted(true)
+            .build();
+    NotificationListener listener = new NotificationListener(getApplicationContext());
+    listener.initNotification(filename);
+    task.enqueue(listener);
   }
 }

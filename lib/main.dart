@@ -9,7 +9,7 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import "package:http/http.dart" as http;
+import 'package:simple_permissions/simple_permissions.dart';
 var extractor = YouTubeExtractor();
 
 void main() {
@@ -31,17 +31,21 @@ class MyTabs extends StatefulWidget {
 class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
-  @override
-  void initState() {
-    super.initState();
-    getSharedText();
-    controller = new TabController(vsync: this, length: 3);
-  }
+  Downloader downloader;
+
 
   getSharedText() async {
+    getPermission(status) {
+      if (!status)
+        SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+    }
+
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
-      getAndDownloadYoutubeAudio(sharedData);
+      SimplePermissions.checkPermission(Permission.WriteExternalStorage)
+          .then((status) => getPermission(status))
+          .whenComplete(
+              () => downloader.getAndDownloadYoutubeAudio(sharedData));
     }
   }
   GoogleSignInAccount _currentUser;
@@ -56,6 +60,9 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    getSharedText();
+    controller = new TabController(vsync: this, length: 3);
+    downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
       if(account == null) {
         _handleSignIn();
