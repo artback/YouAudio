@@ -11,11 +11,13 @@ var extractor = YouTubeExtractor();
 class AudioInfo {
   final String url;
   final String fileType;
+
   AudioInfo(this.url, this.fileType);
 }
 
 class Downloader {
   static const platform = const MethodChannel('com.yaudio');
+
   getAndDownloadYoutubeAudio(String url) async {
     AudioInfo audioInfo = await youtubeToAudio(url);
     requestYoutubeVideoInfo(url).then((video) =>
@@ -47,9 +49,8 @@ class Downloader {
 
   downloadAudio(
       AudioInfo info, String downloadLocation, Video youtubeVideo) async {
-    String name= youtubeVideo.name;
-    if(name.length >= 50)
-      name.substring(0,50);
+    String name = youtubeVideo.name;
+    if (name.length >= 50) name.substring(0, 50);
     try {
       await platform.invokeMethod('download', <String, dynamic>{
         'url': info.url,

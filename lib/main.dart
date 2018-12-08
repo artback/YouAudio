@@ -26,7 +26,7 @@ class MyTabs extends StatefulWidget {
 class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
-  Downloader downloader ;
+  Downloader downloader;
 
   @override
   void initState() {
@@ -41,39 +41,41 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
       if (!status)
         SimplePermissions.requestPermission(Permission.WriteExternalStorage);
     }
+
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
       SimplePermissions.checkPermission(Permission.WriteExternalStorage)
           .then((status) => getPermission(status))
-          .whenComplete(() => downloader.getAndDownloadYoutubeAudio(sharedData));
+          .whenComplete(
+              () => downloader.getAndDownloadYoutubeAudio(sharedData));
     }
   }
 
-    @override
-    Widget build(BuildContext context) {
-      return new Scaffold(
-          appBar: new AppBar(
-            backgroundColor: accentColor,
-            leading: new IconButton(
-                icon: new Icon(Icons.search),
-                color: const Color(0xFFDDDDDD),
-                onPressed: () => Navigator.of(context).pushNamed('/search')),
-            actions: <Widget>[
-              new IconButton(
-                icon: new Icon(
-                  Icons.menu,
-                ),
-                color: const Color(0xFFDDDDDD),
-                onPressed: () {},
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: new AppBar(
+          backgroundColor: accentColor,
+          leading: new IconButton(
+              icon: new Icon(Icons.search),
+              color: const Color(0xFFDDDDDD),
+              onPressed: () => Navigator.of(context).pushNamed('/search')),
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(
+                Icons.menu,
               ),
-            ],
-            bottom: new TabBar(controller: controller, tabs: <Tab>[
-              new Tab(text: 'Play'),
-              new Tab(text: 'Subscriptions'),
-            ]),
-          ),
-          body: new TabBarView(
-              controller: controller,
-              children: <Widget>[new Play(), new SubscriptionsPage()]));
-    }
+              color: const Color(0xFFDDDDDD),
+              onPressed: () {},
+            ),
+          ],
+          bottom: new TabBar(controller: controller, tabs: <Tab>[
+            new Tab(text: 'Play'),
+            new Tab(text: 'Subscriptions'),
+          ]),
+        ),
+        body: new TabBarView(
+            controller: controller,
+            children: <Widget>[new Play(), new SubscriptionsPage()]));
   }
+}
