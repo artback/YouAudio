@@ -47,8 +47,7 @@ class Downloader {
             .toLowerCase());
   }
 
-  downloadAudio(
-      AudioInfo info, String downloadLocation, Video youtubeVideo) async {
+  downloadAudio(AudioInfo info, String downloadLocation, Video youtubeVideo) async {
     String name = youtubeVideo.name;
     if (name.length >= 50) name.substring(0, 50);
     try {
