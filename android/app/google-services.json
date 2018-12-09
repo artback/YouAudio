@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "308228742293",
+    "firebase_url": "https://youaudio-829e6.firebaseio.com",
+    "project_id": "youaudio-829e6",
+    "storage_bucket": "youaudio-829e6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308228742293:android:232bea4f0bc9441e",
+        "android_client_info": {
+          "package_name": "se.podcast.youtube.mp3.youtubepodcaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "308228742293-k5qt5i821jgqu6ird8qpa5m47rg6o82e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "se.podcast.youtube.mp3.youtubepodcaster",
+            "certificate_hash": "6fd53fc353379d22af057803f1038d432be66e5b"
+          }
+        },
+        {
+          "client_id": "308228742293-1sblt584v6btp5d7lr4nmakmm70u1sm2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCk8gYOU57OZhLYF5_EuMMUQD_OqYoiYGI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "308228742293-1sblt584v6btp5d7lr4nmakmm70u1sm2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

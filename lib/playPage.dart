@@ -36,28 +36,24 @@ class FileListState extends State<FileList> {
     super.initState();
     setState(() {
       videos.add(new Video(
-          '2',
           'Video 1',
-          'est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\n nqui aperiam non debitis possimus qui neque nisi nulla',
-          true
+          true,
+          'Author 1'
       ));
       videos.add(new Video(
-          '3',
           'Video 2',
-          'et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut',
-          true
+          false,
+          'Author 2'
       ));
       videos.add(new Video(
-          '4',
           'Video 3',
-          'ullam et saepe reiciendis voluptatem adipisci\nsit amet autem assumenda provident rerum\n elit',
-          true
+          false,
+          'Author 2'
       ));
       videos.add(new Video(
-          '4',
           'Video 3',
-          'ullam et saepe reiciendis voluptatem adipisci\nsit amet autem assumenda provident rerum\n elit',
-          true
+          false,
+          'Author 2'
       ));
     });
   }
@@ -77,7 +73,6 @@ class FileListState extends State<FileList> {
                     color: Colors.black),
               ),
             ),
-            subtitle: Text('${videos[position].description}'),
           );
         },
       )
