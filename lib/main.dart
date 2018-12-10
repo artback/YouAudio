@@ -1,4 +1,5 @@
 import 'package:YouAudio/YoutubeToAudio.dart';
+import 'package:YouAudio/settingsPage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:YouAudio/playPage.dart';
@@ -19,6 +20,7 @@ void main() {
     home: new MyTabs(),
     routes: <String, WidgetBuilder>{
       '/search': (BuildContext context) => new SearchList(),
+      '/settings': (BuildContext context) => new Settings(),
     },
   ));
 }
@@ -90,12 +92,9 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
               onPressed: () => Navigator.of(context).pushNamed('/search')),
           actions: <Widget>[
             new IconButton(
-              icon: new Icon(
-                Icons.menu,
-              ),
-              color: const Color(0xFFDDDDDD),
-              onPressed: () {},
-            ),
+                icon: new Icon(Icons.menu),
+                color: const Color(0xFFDDDDDD),
+                onPressed: () => Navigator.of(context).pushNamed('/settings')),
           ],
           bottom: new TabBar(controller: controller, tabs: <Tab>[
             new Tab(text: 'Play'),

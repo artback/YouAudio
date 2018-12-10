@@ -38,7 +38,7 @@ class _SearchListState extends State<SearchList>
         });
       }
     });
-   }
+  }
   void init() {
     _list = List();
     _list.add("Video 1");
