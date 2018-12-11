@@ -103,7 +103,7 @@ class _SettingsState extends State<Settings>
                           value: snapshot.data,
                           onChanged: _valueWifiOnlyChanged,
                           title: new Text('Wifi Only'),
-                          controlAffinity: ListTileControlAffinity.leading,
+                          controlAffinity: ListTileControlAffinity.trailing,
                           subtitle: new Text(
                               'Enabling this, the app will only download while on WiFi'),
                           secondary: new Icon(Icons.wifi),
@@ -126,7 +126,7 @@ class _SettingsState extends State<Settings>
                           value: snapshot.data,
                           onChanged: _valueNotificationsChanged,
                           title: new Text('Notifications'),
-                          controlAffinity: ListTileControlAffinity.leading,
+                          controlAffinity: ListTileControlAffinity.trailing,
                           subtitle: new Text(
                               'Enabling this, the app will notify you whenever a file is done downloading'),
                           secondary: new Icon(Icons.notifications),
@@ -149,7 +149,7 @@ class _SettingsState extends State<Settings>
                           value: snapshot.data,
                           onChanged: _valueAutoDownloadChanged,
                           title: new Text('Auto Download'),
-                          controlAffinity: ListTileControlAffinity.leading,
+                          controlAffinity: ListTileControlAffinity.trailing,
                           subtitle: new Text(
                               'Enabling this, the app will download the videos whenever an user uploads a video'),
                           secondary: new Icon(Icons.file_download),
