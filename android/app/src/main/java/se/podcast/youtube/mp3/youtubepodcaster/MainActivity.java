@@ -74,7 +74,6 @@ public class MainActivity extends FlutterActivity {
     return intentError;
   }
   private void download(String url,File folder,String filename){
-
     DownloadTask task = new DownloadTask.Builder(url, folder)
             .setFilename(filename)
             // the minimal interval millisecond for callback progress

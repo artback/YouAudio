@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
 import 'package:http/http.dart' as http;
+import 'dart:io';
 
 var extractor = YouTubeExtractor();
 
@@ -50,14 +51,27 @@ class Downloader {
   downloadAudio(AudioInfo info, String downloadLocation, Video youtubeVideo) async {
     String name = youtubeVideo.name;
     if (name.length >= 50) name.substring(0, 50);
-    try {
-      await platform.invokeMethod('download', <String, dynamic>{
-        'url': info.url,
-        'folder': downloadLocation,
-        'filename': '$name.${info.fileType}'
-      });
-    } on PlatformException {
-      print('Failed to download audio');
+    download() async {
+      try {
+        await platform.invokeMethod('download', <String, dynamic>{
+          'url': info.url,
+          'folder': downloadLocation,
+          'filename': '$name.${info.fileType}',
+          'author': '${youtubeVideo.author}',
+        });
+      } on PlatformException {
+        print('Failed to download audio');
+      }
     }
+    createDir() {
+      new Directory(downloadLocation).create(recursive: true)
+          .then((Directory directory) {
+        download();
+      });
+    }
+    final myDir = new Directory(downloadLocation);
+    myDir.exists().then((isThere) {
+      isThere ? download() : createDir();
+    });
   }
 }

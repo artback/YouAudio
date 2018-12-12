@@ -1,4 +1,5 @@
 import 'package:YouAudio/YoutubeToAudio.dart';
+import 'package:YouAudio/permission.dart';
 import 'package:YouAudio/settingsPage.dart';
 
 import 'package:flutter/material.dart';
@@ -36,15 +37,10 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   Downloader downloader;
 
   getSharedText() async {
-    getPermission(status) {
-      if (!status)
-        SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-    }
 
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
-      SimplePermissions.checkPermission(Permission.WriteExternalStorage)
-          .then((status) => getPermission(status))
+      checkOrActivatePermission(Permission.WriteExternalStorage)
           .whenComplete(
               () => downloader.getAndDownloadYoutubeAudio(sharedData));
     }
