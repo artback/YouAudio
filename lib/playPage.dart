@@ -1,13 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:YouAudio/bottomButtonControl.dart';
-import 'package:YouAudio/permission.dart';
+import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:simple_permissions/simple_permissions.dart';
-
-enum PlayerState { stopped, playing, paused }
-
+enum _PlayerState { stopped, playing, paused }
 class Play extends StatefulWidget {
   @override
   PlayState createState() {
@@ -18,46 +16,122 @@ class Play extends StatefulWidget {
 class PlayState extends State<Play> {
   Duration duration;
   Duration position;
+
   List<FileSystemEntity> files = new List();
-  BottomControl bottomControl;
   AudioPlayer audioPlayer = new AudioPlayer();
-  get isPlaying => playerState == PlayerState.playing;
-  get isPaused => playerState == PlayerState.paused;
+
+  get isPlaying => playerState == _PlayerState.playing;
+
+  get isPaused => playerState == _PlayerState.paused;
+
   get durationText =>
       duration != null ? duration.toString().split('.').first : '';
+
   get positionText =>
       position != null ? position.toString().split('.').first : '';
-  var playerState;
 
+  get currentPlaying =>
+      files[current].path.split('/').last.split('.').first.split('|').first;
 
+  get currentPlayingShorted => currentPlaying.substring(
+      0, 35 > currentPlaying.length ? currentPlaying.length : 35);
+  bool changing = false;
+  _PlayerState playerState;
+
+  StreamSubscription _positionSubscription;
+  StreamSubscription _audioPlayerStateSubscription;
+
+  int current;
+
+  @override
+  void dispose() {
+    _positionSubscription.cancel();
+    _audioPlayerStateSubscription.cancel();
+    audioPlayer.stop();
+    super.dispose();
+  }
+
+  void initAudioPlayer() {
+    audioPlayer = new AudioPlayer();
+    _positionSubscription = audioPlayer.onAudioPositionChanged
+        .listen((p) => setState(() => position = p));
+    _audioPlayerStateSubscription =
+        audioPlayer.onPlayerStateChanged.listen((s) {
+      if (s == AudioPlayerState.PLAYING) {
+        setState(() => duration = audioPlayer.duration);
+      } else if (s == AudioPlayerState.STOPPED) {
+        setState(() {
+          position = duration;
+        });
+      }
+    }, onError: (msg) {
+      setState(() {
+        playerState = _PlayerState.stopped;
+        duration = new Duration(seconds: 0);
+        position = new Duration(seconds: 0);
+      });
+    });
+  }
+  file() async{
+    bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    while(!status){
+      await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
+      status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    }
+    Directory dir = Directory('/storage/emulated/0/Yaudio');
+    dir.list(recursive: true, followLinks: false)
+        .toList()
+        .then((list) => setState(() {
+      files = list;
+    }));
+  }
   @override
   void initState() {
     super.initState();
-    file() {
-      Directory dir = Directory('/storage/emulated/0/Yaudio');
-      dir.list(recursive: true, followLinks: false).toList().then((list) =>
-          setState(() {
-            files = list;
-          }));
-    }
-    checkOrActivatePermission(Permission.ReadExternalStorage)
-        .whenComplete(() => file());
-    bottomControl = BottomControl(null, null, null);
+    file();
+    initAudioPlayer();
+
   }
 
-  AudioPlayer audioPlugin = new AudioPlayer();
-
   void play(int index) async {
-      if(isPlaying){
-        await audioPlayer.stop();
-      }
-      await audioPlayer.play(files[index].path);
-      setState(() => playerState = PlayerState.playing);
+    changing = true;
+    if (isPlaying) {
+      await audioPlayer.stop();
+    }
+    await audioPlayer.play(files[index].path);
+    setState(() => playerState = _PlayerState.playing);
+    setState(() => current = index);
+    changing = false;
+  }
+
+  Future previous() async {
+    setState(() {
+      duration = null;
+    });
+    while(changing){
+      await new Future.delayed(const Duration(seconds: 5), () => "1");
+    }
+    play((current - 1) % files.length);
+  }
+
+  Future next() async {
+    setState(() {
+      duration = null;
+    });
+    while(changing){
+      await new Future.delayed(const Duration(seconds: 5), () => "1");
+    }
+    play((current + 1) % files.length);
   }
 
   Future<void> pause() async {
-    await audioPlayer.pause();
-    setState(() => playerState = PlayerState.paused);
+    if (isPlaying) {
+      await audioPlayer.pause();
+      setState(() => playerState = _PlayerState.paused);
+    } else if(isPaused) {
+      await audioPlayer.play(files[current].path);
+      setState(() => playerState = _PlayerState.playing);
+    }
   }
 
   Widget build(BuildContext context) {
@@ -80,12 +154,129 @@ class PlayState extends State<Play> {
                       color: Colors.black),
                 ),
               ),
-              onTap: ()  => play(position),
+              onTap: () => play(position),
             );
           },
         ))),
-        bottomControl
+        new Container(
+            width: double.infinity,
+            child: new Material(
+                color: accentColor,
+                child: new Column(
+                  children: <Widget>[
+                    duration == null
+                        ? new Container()
+                        : new Slider(
+                        value: position?.inMilliseconds?.toDouble() ??
+                            0.0,
+                        onChanged: (double value) => audioPlayer
+                            .seek((value / 1000).roundToDouble()),
+                        activeColor: Colors.white,
+                        min: 0.0,
+                        max: duration.inMilliseconds.toDouble()),
+                    new Padding(
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
+                      child: new Column(
+                        children: <Widget>[
+                          new RichText(
+                              text: new TextSpan(text: '', children: [
+                            new TextSpan(
+                              text:
+                                  current != null ? '$currentPlayingShorted ' : '',
+                              style: new TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                  height: 2),
+                            ),
+                          ])),
+                          new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              RichText(
+                               text:
+                               new TextSpan(
+                                 text: position != null
+                                     ? "${positionText ?? ''} / ${durationText ?? ''}"
+                                     : duration != null ? durationText : '',
+                                 style: new TextStyle(
+                                     color: Colors.white.withOpacity(0.75),
+                                     fontSize: 12.0,
+                                     fontWeight: FontWeight.bold,
+                                     letterSpacing: 1.0,
+                                     height: 1.0),
+                               ),
+                              )
+                            ],
+                          ),
+                          new Padding(padding: EdgeInsets.only(bottom: 10)),
+                          new Row(
+                            children: <Widget>[
+                              new Expanded(child: new Container()),
+                              new PreviousButton(previous),
+                              new Expanded(child: new Container()),
+                              new RawMaterialButton(
+                                onPressed: pause,
+                                shape: new CircleBorder(),
+                                fillColor: Colors.white,
+                                splashColor: lightAccentColor,
+                                highlightColor:
+                                    lightAccentColor.withOpacity(0.5),
+                                elevation: 10.0,
+                                highlightElevation: 5.0,
+                                child: new Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: new Icon(
+                                        isPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: darkAccentColor,
+                                        size: 35.0)),
+                              ),
+                              new Expanded(child: new Container()),
+                              new NextButton(next),
+                              new Expanded(child: new Container()),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                )))
       ],
+    );
+  }
+}
+
+class NextButton extends StatelessWidget {
+  final VoidCallback _onTap;
+
+  const NextButton(this._onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return new IconButton(
+        splashColor: lightAccentColor,
+        highlightColor: Colors.transparent,
+        icon: new Icon(Icons.skip_next, color: Colors.white, size: 35.0),
+        onPressed: _onTap
+    );
+  }
+}
+
+class PreviousButton extends StatelessWidget {
+  final VoidCallback _onTap;
+
+  PreviousButton(this._onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return new IconButton(
+      splashColor: lightAccentColor,
+      highlightColor: Colors.transparent,
+      icon: new Icon(Icons.skip_previous, color: Colors.white, size: 35.0),
+      onPressed: _onTap,
     );
   }
 }
