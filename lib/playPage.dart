@@ -112,7 +112,7 @@ class PlayState extends State<Play> {
   }
 
   Future<void> show(title) async {
-      await MediaNotification.show(title: title);
+      await MediaNotification.show(title: title, author: null);
   }
   @override
   void initState() {
