@@ -1,4 +1,4 @@
 abstract class Content {
-  final String name;
-  Content(this.name);
+  final String title;
+  Content(this.title);
 }

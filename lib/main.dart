@@ -36,17 +36,15 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   Downloader downloader;
 
   getSharedText() async {
-    getPermission(status) {
-      if (!status)
-        SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-    }
 
     var sharedData = await platform.invokeMethod("getSharedText");
     if (sharedData != null) {
-      SimplePermissions.checkPermission(Permission.WriteExternalStorage)
-          .then((status) => getPermission(status))
-          .whenComplete(
-              () => downloader.getAndDownloadYoutubeAudio(sharedData));
+      bool status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
+      while(!status ){
+        await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+        status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
+      }
+      downloader.getAndDownloadYoutubeAudio(sharedData);
     }
   }
 
