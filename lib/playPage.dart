@@ -95,6 +95,9 @@ class PlayState extends State<Play> {
 
   void play(int index) async {
     changing = true;
+    setState(() {
+      duration = null;
+    });
     if (isPlaying) {
       await audioPlayer.stop();
     }
@@ -105,9 +108,6 @@ class PlayState extends State<Play> {
   }
 
   Future previous() async {
-    setState(() {
-      duration = null;
-    });
     while(changing){
       await new Future.delayed(const Duration(seconds: 5), () => "1");
     }
@@ -115,9 +115,6 @@ class PlayState extends State<Play> {
   }
 
   Future next() async {
-    setState(() {
-      duration = null;
-    });
     while(changing){
       await new Future.delayed(const Duration(seconds: 5), () => "1");
     }
