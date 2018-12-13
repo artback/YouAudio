@@ -2,9 +2,10 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 
 class BottomControl extends StatelessWidget {
-  const BottomControl({
-    Key key,
-  }) : super(key: key);
+  final VoidCallback _play;
+  final VoidCallback _previous;
+  final VoidCallback _next;
+  const BottomControl(this._play, this._previous, this._next);
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +43,14 @@ class BottomControl extends StatelessWidget {
                   children: <Widget>[
                     new Expanded(child: new Container()),
 
-                    new PreviousButton(),
+                    new PreviousButton(_previous),
 
                     new Expanded(child: new Container()),
-                    new PlayAndPauseButton(),
+                    new PlayAndPauseButton(_play),
 
                     new Expanded(child: new Container()),
 
-                    new NextButton(),
+                    new NextButton(_next),
 
                     new Expanded(child: new Container()),
 
@@ -61,13 +62,12 @@ class BottomControl extends StatelessWidget {
         )
     );
   }
+
 }
 
 class NextButton extends StatelessWidget {
-  const NextButton({
-    Key key,
-  }) : super(key: key);
-
+  final VoidCallback _onTap;
+  const NextButton(this._onTap);
   @override
   Widget build(BuildContext context) {
     return new IconButton(
@@ -77,23 +77,18 @@ class NextButton extends StatelessWidget {
             Icons.skip_next,
             color: Colors.white,
             size: 35.0
-        ), onPressed: (){
-      //@TODO fix
-    });
+        ), onPressed: _onTap
+    );
   }
 }
 
 class PlayAndPauseButton extends StatelessWidget {
-  const PlayAndPauseButton({
-    Key key,
-  }) : super(key: key);
-
+  final VoidCallback _onTap;
+  const PlayAndPauseButton(this._onTap);
   @override
   Widget build(BuildContext context) {
     return new RawMaterialButton(
-      onPressed: (){
-        // @Todo
-      },
+      onPressed: _onTap ,
       shape: new CircleBorder(),
       fillColor: Colors.white,
       splashColor: lightAccentColor,
@@ -113,10 +108,8 @@ class PlayAndPauseButton extends StatelessWidget {
 }
 
 class PreviousButton extends StatelessWidget {
-  const PreviousButton({
-    Key key,
-  }) : super(key: key);
-
+  final VoidCallback _onTap;
+  PreviousButton(this._onTap);
   @override
   Widget build(BuildContext context) {
     return new IconButton(
@@ -126,8 +119,7 @@ class PreviousButton extends StatelessWidget {
             Icons.skip_previous,
             color: Colors.white,
             size: 35.0
-        ), onPressed: (){
-      //@TODO fix
-    });
+        ), onPressed: _onTap,
+    );
   }
 }

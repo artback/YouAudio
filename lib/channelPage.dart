@@ -58,7 +58,7 @@ class ChannelPageState extends State<ChannelPage> {
               return ListTile(
                 title: RichText(
                   text: new TextSpan(
-                    text:'${videos[position].name}',
+                    text:'${videos[position].title}',
                     style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,color: Colors.black),
                   ),
                 ),

@@ -49,14 +49,13 @@ class Downloader {
   }
 
   downloadAudio(AudioInfo info, String downloadLocation, Video youtubeVideo) async {
-    String name = youtubeVideo.name;
-    if (name.length >= 50) name.substring(0, 50);
     download() async {
       try {
         await platform.invokeMethod('download', <String, dynamic>{
           'url': info.url,
           'folder': downloadLocation,
-          'filename': '$name.${info.fileType}',
+          'file_ending': '${info.fileType}',
+          'title': '${youtubeVideo.title}',
           'author': '${youtubeVideo.author}',
         });
       } on PlatformException {
