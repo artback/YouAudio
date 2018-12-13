@@ -5,6 +5,7 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:simple_permissions/simple_permissions.dart';
+import 'package:media_notification/media_notification.dart';
 enum _PlayerState { stopped, playing, paused }
 class Play extends StatefulWidget {
   @override
@@ -72,6 +73,27 @@ class PlayState extends State<Play> {
       });
     });
   }
+  void initNotification() {
+    MediaNotification.setListener('pause', () {
+        pause();
+    });
+
+    MediaNotification.setListener('play', () {
+      pause();
+    });
+
+    MediaNotification.setListener('next', () {
+      next();
+    });
+
+    MediaNotification.setListener('prev', () {
+      previous();
+    });
+
+    MediaNotification.setListener('select', () {
+
+    });
+  }
   file() async{
     bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
     while(!status){
@@ -85,12 +107,19 @@ class PlayState extends State<Play> {
       files = list;
     }));
   }
+  Future<void> hide() async {
+      await MediaNotification.hide();
+  }
+
+  Future<void> show(title) async {
+      await MediaNotification.show(title: title);
+  }
   @override
   void initState() {
     super.initState();
     file();
     initAudioPlayer();
-
+    initNotification();
   }
 
   void play(int index) async {
@@ -104,6 +133,7 @@ class PlayState extends State<Play> {
     await audioPlayer.play(files[index].path);
     setState(() => playerState = _PlayerState.playing);
     setState(() => current = index);
+    show(currentPlayingShorted);
     changing = false;
   }
 
@@ -125,9 +155,11 @@ class PlayState extends State<Play> {
     if (isPlaying) {
       await audioPlayer.pause();
       setState(() => playerState = _PlayerState.paused);
+      hide();
     } else if(isPaused) {
       await audioPlayer.play(files[current].path);
       setState(() => playerState = _PlayerState.playing);
+      show(currentPlayingShorted);
     }
   }
 
