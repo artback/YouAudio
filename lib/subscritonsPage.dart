@@ -103,6 +103,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                                     style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,color: Colors.black),
                                   )
                               ),
+
                               //subtitle: Text('content[index]["snippet"]["description"]'), if we want to add description add here
                               trailing: new Checkbox(
                                   value: content[index].checked,
