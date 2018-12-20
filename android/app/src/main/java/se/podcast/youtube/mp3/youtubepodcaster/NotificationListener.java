@@ -35,17 +35,12 @@ import com.liulishuo.okdownload.core.cause.EndCause;
 import com.liulishuo.okdownload.core.listener.DownloadListener4WithSpeed;
 import com.liulishuo.okdownload.core.listener.assist.Listener4SpeedAssistExtend;
 
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 
 public class NotificationListener extends DownloadListener4WithSpeed {
     private int totalLength;
@@ -161,7 +156,6 @@ public class NotificationListener extends DownloadListener4WithSpeed {
         builder.setContentText(cause.toString().toLowerCase());
         if (cause == EndCause.COMPLETED) {
             builder.setProgress(1, 1, false);
-            addTag(audio);
         }
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -172,23 +166,5 @@ public class NotificationListener extends DownloadListener4WithSpeed {
             // because of on some android phone too frequency notify for same id would be
             // ignored.
         }, 100);
-    }
-    private void addTag(Audio audio){
-        try {
-            AudioFile f = AudioFileIO.read(audio.file);
-            Tag tag = f.getTag();
-            tag.setField(FieldKey.ARTIST,audio.Author);
-            tag.setField(FieldKey.TITLE,audio.title);
-        } catch (CannotReadException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TagException e) {
-            e.printStackTrace();
-        } catch (ReadOnlyFileException e) {
-            e.printStackTrace();
-        } catch (InvalidAudioFrameException e) {
-            e.printStackTrace();
-        }
     }
 }

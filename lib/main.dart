@@ -36,16 +36,8 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   Downloader downloader;
 
   getSharedText() async {
-
-    var sharedData = await platform.invokeMethod("getSharedText");
-    if (sharedData != null) {
-      bool status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
-      while(!status ){
-        await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-        status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
-      }
+    String sharedData = await platform.invokeMethod("getSharedText");
       downloader.getAndDownloadYoutubeAudio(sharedData);
-    }
   }
 
   GoogleSignInAccount _currentUser;

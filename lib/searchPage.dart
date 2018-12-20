@@ -1,3 +1,4 @@
+import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -13,6 +14,7 @@ class SearchList extends StatefulWidget {
 
 class _SearchListState extends State<SearchList>
     with SingleTickerProviderStateMixin {
+
   Widget appBarTitle = new Text(
     "",
     style: new TextStyle(color: Colors.white),
@@ -25,6 +27,7 @@ class _SearchListState extends State<SearchList>
   TabController controller;
   Future<List> foundVideos;
   Future<List> foundChannels;
+  Downloader downloader;
 
   @override
   void initState() {
@@ -33,6 +36,7 @@ class _SearchListState extends State<SearchList>
     init();
     foundVideos = search(_searchText, "video");
     foundChannels = search(_searchText, "channel");
+    downloader = new Downloader();
   }
 
   _SearchListState() {
@@ -108,6 +112,7 @@ class _SearchListState extends State<SearchList>
                                   icon: Icon(Icons.file_download),
                                   onPressed: () {
                                     //add download function here
+                                    downloader.getAndDownloadYoutubeAudio(content[index].videoId);
                                     print(
                                         "downloading " + content[index].title);
                                   }));

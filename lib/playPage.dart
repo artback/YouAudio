@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,10 @@ class PlayState extends State<Play> {
     audioPlayer.stop();
     super.dispose();
   }
-
+  void playRandom(){
+    Random random = new Random();
+    play(random.nextInt(files.length));
+  }
   void initAudioPlayer() {
     audioPlayer = new AudioPlayer();
     _positionSubscription = audioPlayer.onAudioPositionChanged

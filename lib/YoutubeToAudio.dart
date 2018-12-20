@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:flutter/services.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
 import 'package:http/http.dart' as http;
@@ -20,13 +21,22 @@ class Downloader {
   static const platform = const MethodChannel('com.yaudio');
 
   getAndDownloadYoutubeAudio(String url) async {
+      bool status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
+      while(!status ){
+        await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+        status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
+      }
     AudioInfo audioInfo = await youtubeToAudio(url);
     requestYoutubeVideoInfo(url).then((video) =>
         downloadAudio(audioInfo, '/storage/emulated/0/Yaudio', video));
   }
 
   Future<Video> requestYoutubeVideoInfo(String url) {
-    var jsonUrl = 'https://www.youtube.com/oembed?url=$url&format=json';
+    if(!url.contains('/(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/')) {
+      url = 'https://www.youtube.com/watch?v=$url';
+    }
+    String jsonUrl = 'https://www.youtube.com/oembed?url=$url&format=json';
+    print(jsonUrl);
     getVideo(response) {
       Map videoMap = json.decode(response.body);
       Video video = Video.fromJson(videoMap);
@@ -37,7 +47,12 @@ class Downloader {
   }
 
   Future<AudioInfo> youtubeToAudio(String url) async {
-    String youtubeId = getIdFromUrl(url);
+    String youtubeId;
+    if(url.contains('/(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/')) {
+      youtubeId = getIdFromUrl(url);
+    }else{
+      youtubeId = url;
+    }
     var streamInfo = await extractor.getMediaStreamsAsync(youtubeId);
     return AudioInfo(
         streamInfo.audio.first.url,

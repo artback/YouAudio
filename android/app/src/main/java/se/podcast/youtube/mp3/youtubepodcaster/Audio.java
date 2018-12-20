@@ -17,5 +17,8 @@ public class Audio{
         this.fileEnding = fileEnding;
         Author = author;
     }
+    public void changeFileEnding(String fileEnding){
+        this.file = new File(folder +'/'+title+'.'+ fileEnding);
+    }
 
 }
