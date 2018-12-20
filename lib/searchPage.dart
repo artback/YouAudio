@@ -280,13 +280,14 @@ Future<List> search(String search, String type) async {
   if (response.statusCode == 200) {
     Map<String, dynamic> subsInfo = json.decode(response.body);
     List videoList = subsInfo['items'];
-    for (var x in videoList) {
-      videos.add(new Video(
-          x["id"]["videoId"],
-          x["snippet"]["title"],
-          x["snippet"]["thumbnails"]["default"]["url"],
-          x["snippet"]["channelTitle"]));
-      //print(x["id"]["videoId"]);
+    for (var video in videoList) {
+      if (video["snippet"]["liveBroadcastContent"] == "none") {
+        videos.add(new Video(
+            video["id"]["videoId"],
+            video["snippet"]["title"],
+            video["snippet"]["thumbnails"]["default"]["url"],
+            video["snippet"]["channelTitle"]));
+      }
     }
     return videos;
   } else {
