@@ -8,8 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:simple_permissions/simple_permissions.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
+
 class SearchList extends StatefulWidget {
   SearchList({Key key}) : super(key: key);
+
   @override
   _SearchListState createState() => new _SearchListState();
 }
@@ -108,7 +110,8 @@ class _SearchListState extends State<SearchList>
                               trailing: IconButton(
                                   icon: Icon(Icons.file_download),
                                   onPressed: () {
-                                    downloader.getAndDownloadYoutubeAudio(content[index].videoId);
+                                    downloader.getAndDownloadYoutubeAudio(
+                                        content[index].videoId);
                                   }));
                         }));
               } else {
@@ -169,7 +172,10 @@ class _SearchListState extends State<SearchList>
 
   List<ChildItem> _buildSearchList() {
     if (_searchText.isEmpty) {
-      return files.map((contact) => new ChildItem(contact.path.split('/').last.split('.').first)).toList();
+      return files
+          .map((contact) =>
+              new ChildItem(contact.path.split('/').last.split('.').first))
+          .toList();
     } else {
       List<String> _searchList = List();
       for (int i = 0; i < files.length; i++) {
@@ -181,19 +187,24 @@ class _SearchListState extends State<SearchList>
       return _searchList.map((contact) => new ChildItem(contact)).toList();
     }
   }
-  file() async{
-    bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while(!status){
+
+  file() async {
+    bool status =
+        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    while (!status) {
       await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+      status = await SimplePermissions.checkPermission(
+          Permission.ReadExternalStorage);
     }
     Directory dir = Directory('/storage/emulated/0/Yaudio');
-    dir.list(recursive: true, followLinks: false)
+    dir
+        .list(recursive: true, followLinks: false)
         .toList()
         .then((list) => setState(() {
-      files = list;
-    }));
+              files = list;
+            }));
   }
+
   Widget buildBar(BuildContext context) {
     return new AppBar(
       backgroundColor: accentColor,

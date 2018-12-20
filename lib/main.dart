@@ -9,6 +9,7 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
 var extractor = YouTubeExtractor();
 
 void main() {
@@ -35,7 +36,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
 
   getSharedText() async {
     String sharedData = await platform.invokeMethod("getSharedText");
-      downloader.getAndDownloadYoutubeAudio(sharedData);
+    downloader.getAndDownloadYoutubeAudio(sharedData);
   }
 
   GoogleSignInAccount currentUser;
