@@ -9,8 +9,6 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:simple_permissions/simple_permissions.dart';
-
 var extractor = YouTubeExtractor();
 
 void main() {

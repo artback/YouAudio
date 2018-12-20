@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:simple_permissions/simple_permissions.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
-
 class SearchList extends StatefulWidget {
   SearchList({Key key}) : super(key: key);
   @override
@@ -14,14 +16,14 @@ class SearchList extends StatefulWidget {
 
 class _SearchListState extends State<SearchList>
     with SingleTickerProviderStateMixin {
-
+  List<FileSystemEntity> files = new List();
   Widget appBarTitle = new Text(
     "",
     style: new TextStyle(color: Colors.white),
   );
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
-  List<String> _list;
+
   bool _value = false;
   String _searchText = "";
   TabController controller;
@@ -56,12 +58,7 @@ class _SearchListState extends State<SearchList>
   }
 
   void init() {
-    _list = List();
-    _list.add("Video 1");
-    _list.add("Video 2");
-    _list.add("Video 3");
-    _list.add("Video 4");
-    _list.add("Video 5");
+    file();
   }
 
   @override
@@ -111,10 +108,7 @@ class _SearchListState extends State<SearchList>
                               trailing: IconButton(
                                   icon: Icon(Icons.file_download),
                                   onPressed: () {
-                                    //add download function here
                                     downloader.getAndDownloadYoutubeAudio(content[index].videoId);
-                                    print(
-                                        "downloading " + content[index].title);
                                   }));
                         }));
               } else {
@@ -175,11 +169,11 @@ class _SearchListState extends State<SearchList>
 
   List<ChildItem> _buildSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new ChildItem(contact)).toList();
+      return files.map((contact) => new ChildItem(contact.path.split('/').last.split('.').first)).toList();
     } else {
       List<String> _searchList = List();
-      for (int i = 0; i < _list.length; i++) {
-        String name = _list.elementAt(i);
+      for (int i = 0; i < files.length; i++) {
+        String name = files.elementAt(i).path.split('/').last.split('.').first;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
           _searchList.add(name);
         }
@@ -187,7 +181,19 @@ class _SearchListState extends State<SearchList>
       return _searchList.map((contact) => new ChildItem(contact)).toList();
     }
   }
-
+  file() async{
+    bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    while(!status){
+      await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
+      status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    }
+    Directory dir = Directory('/storage/emulated/0/Yaudio');
+    dir.list(recursive: true, followLinks: false)
+        .toList()
+        .then((list) => setState(() {
+      files = list;
+    }));
+  }
   Widget buildBar(BuildContext context) {
     return new AppBar(
       backgroundColor: accentColor,
