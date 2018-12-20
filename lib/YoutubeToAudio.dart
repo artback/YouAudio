@@ -67,7 +67,6 @@ class Downloader {
   downloadAudio(AudioInfo info,Video youtubeVideo) async {
     Directory dir = await getExternalStorageDirectory();
     String downloadLocation = dir.path + '/Yaudio';
-    print(downloadLocation);
     download() async {
       try {
         await platform.invokeMethod('download', <String, dynamic>{
@@ -88,7 +87,6 @@ class Downloader {
       });
     }
     final myDir = new Directory(downloadLocation);
-    print(myDir);
     myDir.exists().then((isThere) {
       isThere ? download() : createDir();
     });
