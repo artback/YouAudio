@@ -185,16 +185,33 @@ class PlayState extends State<Play> {
                 child: ListView.builder(
           itemCount: files == null ? 0 : files.length,
           itemBuilder: (BuildContext context, int position) {
+            String title =
+                files[position].path.split('/').last.split('.').first;
+            if (title.length >= 72) title = title.substring(0, 72) + "...";
+            String subtitle = "Some Author - 2:39";
             return ListTile(
+              leading: new Icon(Icons.apps),
               title: RichText(
                 text: new TextSpan(
-                  text:
-                      '${files[position].path.split('/').last.split('.').first}',
+                  text: '$title',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 16,
                       color: Colors.black),
                 ),
+              ),
+              subtitle: RichText(
+                text: new TextSpan(
+                  text: '$subtitle',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.blueGrey),
+                ),
+              ),
+              trailing: new Icon(
+                Icons.edit,
+                size: 16,
               ),
               onTap: () => play(position),
             );
