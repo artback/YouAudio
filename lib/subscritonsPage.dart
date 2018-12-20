@@ -16,7 +16,7 @@ import 'dart:io';
 //login implementation should give ous a way to access a users ChannelId and apiKey
 var channelID = "UCo2fdNt0ix-2JT06o_RmqCQ";
 var apiKey    = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
-var subApi    = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&channelId=${channelID}&maxResults=20&key=${apiKey}";
+var subApi    = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&channelId=$channelID&maxResults=20&key=$apiKey";
 
 //varibles for writing/reading from file
 File jsonFile;

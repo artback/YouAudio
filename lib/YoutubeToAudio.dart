@@ -7,7 +7,7 @@ import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
 import 'package:http/http.dart' as http;
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 var extractor = YouTubeExtractor();
 
 class AudioInfo {
@@ -28,7 +28,8 @@ class Downloader {
       }
     AudioInfo audioInfo = await youtubeToAudio(url);
     requestYoutubeVideoInfo(url).then((video) =>
-        downloadAudio(audioInfo, '/storage/emulated/0/Yaudio', video));
+
+        downloadAudio(audioInfo, video));
   }
 
   Future<Video> requestYoutubeVideoInfo(String url) {
@@ -63,7 +64,10 @@ class Downloader {
             .toLowerCase());
   }
 
-  downloadAudio(AudioInfo info, String downloadLocation, Video youtubeVideo) async {
+  downloadAudio(AudioInfo info,Video youtubeVideo) async {
+    Directory dir = await getExternalStorageDirectory();
+    String downloadLocation = dir.path + '/Yaudio';
+    print(downloadLocation);
     download() async {
       try {
         await platform.invokeMethod('download', <String, dynamic>{
@@ -84,6 +88,7 @@ class Downloader {
       });
     }
     final myDir = new Directory(downloadLocation);
+    print(myDir);
     myDir.exists().then((isThere) {
       isThere ? download() : createDir();
     });

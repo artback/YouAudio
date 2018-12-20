@@ -38,7 +38,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
       downloader.getAndDownloadYoutubeAudio(sharedData);
   }
 
-  GoogleSignInAccount _currentUser;
+  GoogleSignInAccount currentUser;
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
@@ -57,6 +57,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
       if (account == null) {
         _handleSignIn();
       }
+      currentUser = account;
     });
     controller = new TabController(vsync: this, length: 3);
   }
