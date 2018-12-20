@@ -86,15 +86,18 @@ class _SearchListState extends State<SearchList>
                 return new Container(
                     child: new ListView.builder(
                         itemCount: content.length,
-                        itemExtent: 150.0,
+                        itemExtent: 80.0,
                         itemBuilder: (BuildContext context, int index) {
                           //some titles were extremely long so i made a quick fix
-                          if (content[index].title.length > 72) {
+                          if (content[index].title.length > 36) {
                             content[index].title =
-                                content[index].title.substring(0, 72) + "...";
+                                content[index].title.substring(0, 36) + "...";
                           }
                           return ListTile(
-                              leading: Image.network(content[index].thumbnail),
+                              leading: Image.network(
+                                content[index].thumbnail,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                              ),
                               onLongPress: () {
                                 print("Open link to video " +
                                     content[index].videoId);
@@ -104,8 +107,16 @@ class _SearchListState extends State<SearchList>
                                 text: '${content[index].title}',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 15,
+                                    fontSize: 16,
                                     color: Colors.black),
+                              )),
+                              subtitle: RichText(
+                                  text: new TextSpan(
+                                text: '${content[index].channelTitle}',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: Colors.blueGrey),
                               )),
                               trailing: IconButton(
                                   icon: Icon(Icons.file_download),
@@ -270,8 +281,11 @@ Future<List> search(String search, String type) async {
     Map<String, dynamic> subsInfo = json.decode(response.body);
     List videoList = subsInfo['items'];
     for (var x in videoList) {
-      videos.add(new Video(x["id"]["videoId"], x["snippet"]["title"],
-          x["snippet"]["thumbnails"]["default"]["url"]));
+      videos.add(new Video(
+          x["id"]["videoId"],
+          x["snippet"]["title"],
+          x["snippet"]["thumbnails"]["default"]["url"],
+          x["snippet"]["channelTitle"]));
       //print(x["id"]["videoId"]);
     }
     return videos;
@@ -285,10 +299,12 @@ class Video {
   String videoId;
   String title;
   String thumbnail;
+  String channelTitle;
 
   Video(
     this.videoId,
     this.title,
     this.thumbnail,
+    this.channelTitle,
   );
 }
