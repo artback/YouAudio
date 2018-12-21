@@ -8,8 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:simple_permissions/simple_permissions.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
+
 class SearchList extends StatefulWidget {
   SearchList({Key key}) : super(key: key);
+
   @override
   _SearchListState createState() => new _SearchListState();
 }
@@ -84,15 +86,18 @@ class _SearchListState extends State<SearchList>
                 return new Container(
                     child: new ListView.builder(
                         itemCount: content.length,
-                        itemExtent: 150.0,
+                        itemExtent: 80.0,
                         itemBuilder: (BuildContext context, int index) {
                           //some titles were extremely long so i made a quick fix
-                          if (content[index].title.length > 72) {
+                          if (content[index].title.length > 36) {
                             content[index].title =
-                                content[index].title.substring(0, 72) + "...";
+                                content[index].title.substring(0, 36) + "...";
                           }
                           return ListTile(
-                              leading: Image.network(content[index].thumbnail),
+                              leading: Image.network(
+                                content[index].thumbnail,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                              ),
                               onLongPress: () {
                                 print("Open link to video " +
                                     content[index].videoId);
@@ -102,13 +107,22 @@ class _SearchListState extends State<SearchList>
                                 text: '${content[index].title}',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 15,
+                                    fontSize: 16,
                                     color: Colors.black),
+                              )),
+                              subtitle: RichText(
+                                  text: new TextSpan(
+                                text: '${content[index].channelTitle}',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: Colors.blueGrey),
                               )),
                               trailing: IconButton(
                                   icon: Icon(Icons.file_download),
                                   onPressed: () {
-                                    downloader.getAndDownloadYoutubeAudio(content[index].videoId);
+                                    downloader.getAndDownloadYoutubeAudio(
+                                        content[index].videoId);
                                   }));
                         }));
               } else {
@@ -169,7 +183,10 @@ class _SearchListState extends State<SearchList>
 
   List<ChildItem> _buildSearchList() {
     if (_searchText.isEmpty) {
-      return files.map((contact) => new ChildItem(contact.path.split('/').last.split('.').first)).toList();
+      return files
+          .map((contact) =>
+              new ChildItem(contact.path.split('/').last.split('.').first))
+          .toList();
     } else {
       List<String> _searchList = List();
       for (int i = 0; i < files.length; i++) {
@@ -181,19 +198,24 @@ class _SearchListState extends State<SearchList>
       return _searchList.map((contact) => new ChildItem(contact)).toList();
     }
   }
-  file() async{
-    bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while(!status){
+
+  file() async {
+    bool status =
+        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    while (!status) {
       await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+      status = await SimplePermissions.checkPermission(
+          Permission.ReadExternalStorage);
     }
     Directory dir = Directory('/storage/emulated/0/Yaudio');
-    dir.list(recursive: true, followLinks: false)
+    dir
+        .list(recursive: true, followLinks: false)
         .toList()
         .then((list) => setState(() {
-      files = list;
-    }));
+              files = list;
+            }));
   }
+
   Widget buildBar(BuildContext context) {
     return new AppBar(
       backgroundColor: accentColor,
@@ -258,10 +280,14 @@ Future<List> search(String search, String type) async {
   if (response.statusCode == 200) {
     Map<String, dynamic> subsInfo = json.decode(response.body);
     List videoList = subsInfo['items'];
-    for (var x in videoList) {
-      videos.add(new Video(x["id"]["videoId"], x["snippet"]["title"],
-          x["snippet"]["thumbnails"]["default"]["url"]));
-      //print(x["id"]["videoId"]);
+    for (var video in videoList) {
+      if (video["snippet"]["liveBroadcastContent"] == "none") {
+        videos.add(new Video(
+            video["id"]["videoId"],
+            video["snippet"]["title"],
+            video["snippet"]["thumbnails"]["default"]["url"],
+            video["snippet"]["channelTitle"]));
+      }
     }
     return videos;
   } else {
@@ -274,10 +300,12 @@ class Video {
   String videoId;
   String title;
   String thumbnail;
+  String channelTitle;
 
   Video(
     this.videoId,
     this.title,
     this.thumbnail,
+    this.channelTitle,
   );
 }

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
   Settings({Key key}) : super(key: key);
+
   @override
   _SettingsState createState() => new _SettingsState();
 }

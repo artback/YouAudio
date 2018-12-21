@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:media_notification/media_notification.dart';
+
 enum _PlayerState { stopped, playing, paused }
+
 class Play extends StatefulWidget {
   @override
   PlayState createState() {
@@ -52,10 +54,12 @@ class PlayState extends State<Play> {
     audioPlayer.stop();
     super.dispose();
   }
-  void playRandom(){
+
+  void playRandom() {
     Random random = new Random();
     play(random.nextInt(files.length));
   }
+
   void initAudioPlayer() {
     audioPlayer = new AudioPlayer();
     _positionSubscription = audioPlayer.onAudioPositionChanged
@@ -77,9 +81,10 @@ class PlayState extends State<Play> {
       });
     });
   }
+
   void initNotification() {
     MediaNotification.setListener('pause', () {
-        pause();
+      pause();
     });
 
     MediaNotification.setListener('play', () {
@@ -94,30 +99,34 @@ class PlayState extends State<Play> {
       previous();
     });
 
-    MediaNotification.setListener('select', () {
-
-    });
+    MediaNotification.setListener('select', () {});
   }
-  file() async{
-    bool status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while(!status){
+
+  file() async {
+    bool status =
+        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+    while (!status) {
       await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
+      status = await SimplePermissions.checkPermission(
+          Permission.ReadExternalStorage);
     }
     Directory dir = Directory('/storage/emulated/0/Yaudio');
-    dir.list(recursive: true, followLinks: false)
+    dir
+        .list(recursive: true, followLinks: false)
         .toList()
         .then((list) => setState(() {
-      files = list;
-    }));
+              files = list;
+            }));
   }
+
   Future<void> hide() async {
-      await MediaNotification.hide();
+    await MediaNotification.hide();
   }
 
   Future<void> show(title) async {
-      await MediaNotification.show(title: title, author: null);
+    await MediaNotification.show(title: title, author: null);
   }
+
   @override
   void initState() {
     super.initState();
@@ -142,14 +151,14 @@ class PlayState extends State<Play> {
   }
 
   Future previous() async {
-    while(changing){
+    while (changing) {
       await new Future.delayed(const Duration(seconds: 5), () => "1");
     }
     play((current - 1) % files.length);
   }
 
   Future next() async {
-    while(changing){
+    while (changing) {
       await new Future.delayed(const Duration(seconds: 5), () => "1");
     }
     play((current + 1) % files.length);
@@ -160,7 +169,7 @@ class PlayState extends State<Play> {
       await audioPlayer.pause();
       setState(() => playerState = _PlayerState.paused);
       hide();
-    } else if(isPaused) {
+    } else if (isPaused) {
       await audioPlayer.play(files[current].path);
       setState(() => playerState = _PlayerState.playing);
       show(currentPlayingShorted);
@@ -176,16 +185,33 @@ class PlayState extends State<Play> {
                 child: ListView.builder(
           itemCount: files == null ? 0 : files.length,
           itemBuilder: (BuildContext context, int position) {
+            String title =
+                files[position].path.split('/').last.split('.').first;
+            if (title.length >= 72) title = title.substring(0, 72) + "...";
+            String subtitle = "Some Author - 2:39";
             return ListTile(
+              leading: new Icon(Icons.apps),
               title: RichText(
                 text: new TextSpan(
-                  text:
-                      '${files[position].path.split('/').last.split('.').first}',
+                  text: '$title',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 16,
                       color: Colors.black),
                 ),
+              ),
+              subtitle: RichText(
+                text: new TextSpan(
+                  text: '$subtitle',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.blueGrey),
+                ),
+              ),
+              trailing: new Icon(
+                Icons.edit,
+                size: 16,
               ),
               onTap: () => play(position),
             );
@@ -200,13 +226,12 @@ class PlayState extends State<Play> {
                     duration == null
                         ? new Container()
                         : new Slider(
-                        value: position?.inMilliseconds?.toDouble() ??
-                            0.0,
-                        onChanged: (double value) => audioPlayer
-                            .seek((value / 1000).roundToDouble()),
-                        activeColor: Colors.white,
-                        min: 0.0,
-                        max: duration.inMilliseconds.toDouble()),
+                            value: position?.inMilliseconds?.toDouble() ?? 0.0,
+                            onChanged: (double value) => audioPlayer
+                                .seek((value / 1000).roundToDouble()),
+                            activeColor: Colors.white,
+                            min: 0.0,
+                            max: duration.inMilliseconds.toDouble()),
                     new Padding(
                       padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
                       child: new Column(
@@ -214,8 +239,9 @@ class PlayState extends State<Play> {
                           new RichText(
                               text: new TextSpan(text: '', children: [
                             new TextSpan(
-                              text:
-                                  current != null ? '$currentPlayingShorted ' : '',
+                              text: current != null
+                                  ? '$currentPlayingShorted '
+                                  : '',
                               style: new TextStyle(
                                   color: Colors.white,
                                   fontSize: 13.0,
@@ -228,18 +254,17 @@ class PlayState extends State<Play> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               RichText(
-                               text:
-                               new TextSpan(
-                                 text: position != null
-                                     ? "${positionText ?? ''} / ${durationText ?? ''}"
-                                     : duration != null ? durationText : '',
-                                 style: new TextStyle(
-                                     color: Colors.white.withOpacity(0.75),
-                                     fontSize: 12.0,
-                                     fontWeight: FontWeight.bold,
-                                     letterSpacing: 1.0,
-                                     height: 1.0),
-                               ),
+                                text: new TextSpan(
+                                  text: position != null
+                                      ? "${positionText ?? ''} / ${durationText ?? ''}"
+                                      : duration != null ? durationText : '',
+                                  style: new TextStyle(
+                                      color: Colors.white.withOpacity(0.75),
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.0,
+                                      height: 1.0),
+                                ),
                               )
                             ],
                           ),
@@ -293,8 +318,7 @@ class NextButton extends StatelessWidget {
         splashColor: lightAccentColor,
         highlightColor: Colors.transparent,
         icon: new Icon(Icons.skip_next, color: Colors.white, size: 35.0),
-        onPressed: _onTap
-    );
+        onPressed: _onTap);
   }
 }
 
