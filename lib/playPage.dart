@@ -188,33 +188,31 @@ class PlayState extends State<Play> {
             String title =
                 files[position].path.split('/').last.split('.').first;
             if (title.length >= 72) title = title.substring(0, 72) + "...";
-            String subtitle = "Some Author - 2:39";
-            return ListTile(
-              leading: new Icon(Icons.apps),
-              title: RichText(
-                text: new TextSpan(
-                  text: '$title',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black),
+            return Dismissible(
+                key: Key(files[position].path),
+                onDismissed: (direction) {
+                  files[position].delete();
+                  setState(() {
+                    files.removeAt(position);
+                  });
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text("$title deleted")));
+                },
+                background: Container(
+                  color: Colors.redAccent,
                 ),
-              ),
-              subtitle: RichText(
-                text: new TextSpan(
-                  text: '$subtitle',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.blueGrey),
-                ),
-              ),
-              trailing: new Icon(
-                Icons.edit,
-                size: 16,
-              ),
-              onTap: () => play(position),
-            );
+                child: ListTile(
+                  title: RichText(
+                    text: new TextSpan(
+                      text: '$title',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black),
+                    ),
+                  ),
+                  onTap: () => play(position),
+                ));
           },
         ))),
         new Container(

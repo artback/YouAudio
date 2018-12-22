@@ -37,7 +37,6 @@ import com.liulishuo.okdownload.core.listener.assist.Listener4SpeedAssistExtend;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
