@@ -19,12 +19,16 @@ void main() {
     home: new MyTabs(),
     routes: <String, WidgetBuilder>{
       '/search': (BuildContext context) => new SearchList(),
+      '/play': (BuildContext context) => new Play(),
+      '/main': (BuildContext context) => new MyTabs(),
       '/settings': (BuildContext context) => new Settings(),
     },
   ));
 }
 
 class MyTabs extends StatefulWidget {
+  final int index;
+  const MyTabs([this.index]);
   @override
   MyTabsState createState() => new MyTabsState();
 }
@@ -33,10 +37,13 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
   Downloader downloader;
+  Play play;
 
   getSharedText() async {
     String sharedData = await platform.invokeMethod("getSharedText");
-    downloader.getAndDownloadYoutubeAudio(sharedData);
+    if(sharedData != null) {
+      downloader.getAndDownloadYoutubeAudio(sharedData);
+    }
   }
 
   GoogleSignInAccount currentUser;
@@ -55,12 +62,19 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
     controller = new TabController(vsync: this, length: 3);
     downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
+      print(account.email);
       if (account == null) {
         _handleSignIn();
       }
-      currentUser = account;
-    });
+      setState(() {
+        currentUser = account;
+      });
+    }).catchError((e) => print(e));
+    play =new Play();
     controller = new TabController(vsync: this, length: 3);
+    if(widget.index != null) {
+      play = new Play(widget.index);
+    }
   }
 
   Future<void> _handleSignIn() async {
@@ -93,6 +107,6 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         ),
         body: new TabBarView(
             controller: controller,
-            children: <Widget>[new Play(), new SubscriptionsPage()]));
+            children: <Widget>[play, new SubscriptionsPage(currentUser)]));
   }
 }

@@ -5,7 +5,9 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
+import 'package:YouAudio/main.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
 
@@ -14,6 +16,7 @@ class SearchList extends StatefulWidget {
 
   @override
   _SearchListState createState() => new _SearchListState();
+
 }
 
 class _SearchListState extends State<SearchList>
@@ -180,23 +183,37 @@ class _SearchListState extends State<SearchList>
       children: _buildSearchList(),
     );
   }
-
-  List<ChildItem> _buildSearchList() {
-    if (_searchText.isEmpty) {
-      return files
-          .map((contact) =>
-              new ChildItem(contact.path.split('/').last.split('.').first))
-          .toList();
+  Widget _buildListTile(String path,int index){
+     return new ListTile(
+         title: new Text(path.split('/').last.split('.').first),
+         onTap: () =>
+           Navigator.push(context, new MaterialPageRoute(
+           builder: (BuildContext context) => new MyTabs(index))
+           )
+       ,
+     );
+  }
+  List<Widget> _buildSearchList() {
+    List<ListItem> _searchList = List();
+    if(_searchText.isEmpty) {
+      for (int i = 0; i < files.length; i++) {
+          _searchList.add(new ListItem(i, files[i].path));
+        }
     } else {
-      List<String> _searchList = List();
       for (int i = 0; i < files.length; i++) {
         String name = files.elementAt(i).path.split('/').last.split('.').first;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(name);
+          _searchList.add(new ListItem(i, name));
+
         }
       }
-      return _searchList.map((contact) => new ChildItem(contact)).toList();
+
     }
+    List<Widget> listTiles = new List();
+    for(int i = 0; i < _searchList.length; i++){
+       listTiles.add(_buildListTile(_searchList[i].name,_searchList[i].index));
+    }
+    return  listTiles;
   }
 
   file() async {
@@ -207,7 +224,8 @@ class _SearchListState extends State<SearchList>
       status = await SimplePermissions.checkPermission(
           Permission.ReadExternalStorage);
     }
-    Directory dir = Directory('/storage/emulated/0/Yaudio');
+    Directory dir = await getExternalStorageDirectory();
+    dir = new Directory(dir.path + '/Yaudio');
     dir
         .list(recursive: true, followLinks: false)
         .toList()
@@ -308,4 +326,10 @@ class Video {
     this.thumbnail,
     this.channelTitle,
   );
+}
+
+class ListItem{
+  final int index;
+  final String name;
+  ListItem(this.index, this.name);
 }
