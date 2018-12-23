@@ -1,5 +1,5 @@
-//import 'package:YouAudio/channelPage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'dart:async';
@@ -26,6 +26,9 @@ bool fileExists = false;
 Map<String, dynamic> fileContent;
 
 class SubscriptionsPage extends StatefulWidget {
+  final GoogleSignInAccount currentUser;
+  SubscriptionsPage(this.currentUser);
+
   @override
   SubscriptionsPageState createState() {
     return new SubscriptionsPageState();
@@ -149,23 +152,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
   }
 }
 
-/*List<Sub> getSubsmerged(List<Sub> notOld, List old)  {
 
-  for(var i in old) {
-    for(var x in notOld){
-      if(i["id"] == x.id) {
-        x.checked = true;
-        print("----");
-        //print(i["title"]);
-        //print("----");
-      }
-    }
-  }
-
-  return notOld;
-}*/
-
-//feteches api write it to sub list
+//fetches api write it to sub list
 //takes fetched json and checks it with fetched subs to see of they already exists in file(could be broken out)
 //return List with all subs
 Future<List> getData(String url) async {

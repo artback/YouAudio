@@ -11,7 +11,6 @@ import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 var extractor = YouTubeExtractor();
-
 void main() {
   runApp(new MaterialApp(
     title: 'YouAudio',
@@ -27,8 +26,8 @@ void main() {
 }
 
 class MyTabs extends StatefulWidget {
-  final int index;
-  const MyTabs([this.index]);
+  int index;
+  MyTabs([this.index]);
   @override
   MyTabsState createState() => new MyTabsState();
 }
@@ -70,11 +69,9 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         currentUser = account;
       });
     }).catchError((e) => print(e));
-    play =new Play();
     controller = new TabController(vsync: this, length: 3);
-    if(widget.index != null) {
-      play = new Play(widget.index);
-    }
+    play = new Play(widget.index);
+    widget.index = null;
   }
 
   Future<void> _handleSignIn() async {
