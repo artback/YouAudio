@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:YouAudio/AudioPlayerSingleton.dart';
 import 'package:YouAudio/FilesSingleton.dart';
@@ -104,9 +103,8 @@ class PlayState extends State<Play> {
             return Dismissible(
                 key: Key(audioPlayerSingleton.files[position].path),
                 onDismissed: (direction) {
-                  audioPlayerSingleton.files[position].delete();
                   setState(() {
-                    audioPlayerSingleton.files.removeAt(position);
+                    audioPlayerSingleton.delete(position);
                   });
                   Scaffold.of(context)
                       .showSnackBar(SnackBar(content: Text("$title deleted")));

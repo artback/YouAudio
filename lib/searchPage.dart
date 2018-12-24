@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class SearchList extends StatefulWidget {
 
 class _SearchListState extends State<SearchList>
     with SingleTickerProviderStateMixin {
-  List<FileSystemEntity> files = new List();
+  List<FileSystemEntity> files = new FilesSingleton().files;
   Widget appBarTitle = new Text(
     "",
     style: new TextStyle(color: Colors.white),

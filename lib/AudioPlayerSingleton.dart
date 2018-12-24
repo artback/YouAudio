@@ -13,11 +13,11 @@ class AudioPlayerSingleton{
   get isPlaying => playerState == PlayerState.playing;
   get isPaused => playerState == PlayerState.paused;
   AudioPlayer audioPlayer = new AudioPlayer();
-  List<FileSystemEntity> files ;
+  List<FileSystemEntity> files;
   bool changing = false;
 
-  get currentPlaying =>
-      files[current].path.split('/').last.split('.').first.split('|').first;
+  get currentPlaying => files.isNotEmpty ?
+      files[current].path.split('/').last.split('.').first.split('|').first : '';
 
   get currentPlayingShorted => currentPlaying.substring(
       0, 35 > currentPlaying.length ? currentPlaying.length : 35);
@@ -36,6 +36,19 @@ class AudioPlayerSingleton{
   void playRandom() {
     Random random = new Random();
     play(random.nextInt(files.length));
+  }
+  void delete(int index){
+   if(current != null) {
+     if (current > index) {
+       current -= 1 % files.length;
+     }
+   }
+   FileSystemEntity  remove = this.files[index];
+   this.files.removeAt(index);
+   remove.delete();
+   if(files.isEmpty){
+     audioPlayer.stop();
+   }
   }
 
   void play(int index) async {
