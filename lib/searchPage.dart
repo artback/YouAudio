@@ -6,8 +6,6 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:simple_permissions/simple_permissions.dart';
 import 'package:YouAudio/main.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
@@ -41,7 +39,6 @@ class _SearchListState extends State<SearchList>
   void initState() {
     super.initState();
     controller = new TabController(vsync: this, length: 3);
-    init();
     foundVideos = search(_searchText, "video");
     foundChannels = search(_searchText, "channel");
     downloader = new Downloader();
@@ -63,9 +60,6 @@ class _SearchListState extends State<SearchList>
     });
   }
 
-  void init() {
-    file();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,23 +211,6 @@ class _SearchListState extends State<SearchList>
     return  listTiles;
   }
 
-  file() async {
-    bool status =
-        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while (!status) {
-      await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(
-          Permission.ReadExternalStorage);
-    }
-    Directory dir = await getExternalStorageDirectory();
-    dir = new Directory(dir.path + '/Yaudio');
-    dir
-        .list(recursive: true, followLinks: false)
-        .toList()
-        .then((list) => setState(() {
-              files = list;
-            }));
-  }
 
   Widget buildBar(BuildContext context) {
     return new AppBar(

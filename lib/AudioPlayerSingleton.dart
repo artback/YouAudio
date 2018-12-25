@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:YouAudio/FilesSingleton.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:media_notification/media_notification.dart';
 
@@ -22,7 +21,6 @@ class AudioPlayerSingleton{
   get currentPlayingShorted => currentPlaying.substring(
       0, 35 > currentPlaying.length ? currentPlaying.length : 35);
 
-
   int current;
 
   Future<void> hide() async {
@@ -39,15 +37,19 @@ class AudioPlayerSingleton{
   }
   void delete(int index){
    if(current != null) {
-     if (current > index) {
+     if (current >= index) {
        current -= 1 % files.length;
+       play(current);
      }
    }
-   FileSystemEntity  remove = this.files[index];
+
+   FileSystemEntity remove = this.files[index];
    this.files.removeAt(index);
    remove.delete();
    if(files.isEmpty){
+     current = null;
      audioPlayer.stop();
+     hide();
    }
   }
 
@@ -55,9 +57,14 @@ class AudioPlayerSingleton{
     changing = true;
     await audioPlayer.stop();
     playerState = PlayerState.playing;
-    await audioPlayer.play(files[index].path);
-    current = index;
-    show(currentPlayingShorted);
+    if(files.length > 0) {
+      await audioPlayer.play(files[index].path);
+      current = index;
+      show(currentPlayingShorted);
+    }else{
+     current = null;
+     hide();
+    }
     changing = false;
   }
 
@@ -111,13 +118,7 @@ class AudioPlayerSingleton{
   factory AudioPlayerSingleton() {
     return _singleton;
   }
-  void setFiles(){
-
-  }
   AudioPlayerSingleton._internal(){
-    new FilesSingleton().file().then((file )=>
-      this.files = file
-    );
     initNotification();
   }
 

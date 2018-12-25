@@ -5,6 +5,8 @@ import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 
 class Play extends StatefulWidget {
@@ -23,16 +25,14 @@ class PlayState extends State<Play> {
   Duration duration;
   Duration position;
   AudioPlayerSingleton audioPlayerSingleton =  new AudioPlayerSingleton();
-  get audio => audioPlayerSingleton.audioPlayer;
+  AudioPlayer get audio => audioPlayerSingleton.audioPlayer;
 
 
-  get durationText =>
+  String get durationText =>
       duration != null ? duration.toString().split('.').first : '';
 
-  get positionText =>
+  String get positionText =>
       position != null ? position.toString().split('.').first : '';
-
-
 
   int current;
 
@@ -75,43 +75,53 @@ class PlayState extends State<Play> {
       duration = audio.duration;
      });
     }
-    new FilesSingleton().file().then((files) =>
-    setState((){
-      audioPlayerSingleton.files = files;
-    })
-    );
     if(widget.index != null){
       audioPlayerSingleton.play(widget.index);
       widget.index = null;
     }
+    SimplePermissions.checkPermission(Permission.ReadExternalStorage).then((status){
+      status ? null : SimplePermissions.requestPermission(Permission.ReadExternalStorage).then((status){
+      new FilesSingleton().file().then((files) =>
+          setState((){
+          audioPlayerSingleton.files = files;
+        }));
+      });
+    });
     initAudioPlayer();
   }
-
-
+  void delete(int position){
+    new FilesSingleton().file().then((files) =>
+        setState((){
+          audioPlayerSingleton.files = files;
+        })
+    );
+    audioPlayerSingleton.delete(position);
+  }
   Widget build(BuildContext context) {
+    new FilesSingleton().file().then((files) =>
+        setState((){
+          audioPlayerSingleton.files = files;
+    }));
     return new Column(
       children: <Widget>[
         new Expanded(
-            // @TODO files list in container
             child: new Container(
                 child: ListView.builder(
           itemCount: audioPlayerSingleton.files == null ? 0 : audioPlayerSingleton.files.length,
           itemBuilder: (BuildContext context, int position) {
-            String title =
-                audioPlayerSingleton.files[position].path.split('/').last.split('.').first;
+            String title = "";
+            if(audioPlayerSingleton.files != null ) {
+              title =
+                  audioPlayerSingleton.files[position].path
+                      .split('/')
+                      .last
+                      .split('.')
+                      .first;
+            }
             if (title.length >= 72) title = title.substring(0, 72) + "...";
-            return Dismissible(
-                key: Key(audioPlayerSingleton.files[position].path),
-                onDismissed: (direction) {
-                  setState(() {
-                    audioPlayerSingleton.delete(position);
-                  });
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text("$title deleted")));
-                },
-                background: Container(
-                  color: Colors.redAccent,
-                ),
+            return Slidable(
+                delegate: new SlidableDrawerDelegate(),
+                actionExtentRatio: 0.2,
                 child: ListTile(
                   title: RichText(
                     text: new TextSpan(
@@ -123,7 +133,16 @@ class PlayState extends State<Play> {
                     ),
                   ),
                   onTap: () => audioPlayerSingleton.play(position),
-                ));
+                ),
+              actions: <Widget>[
+                new IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red.shade900,
+                  icon: Icons.delete,
+                  onTap: () =>  delete(position),
+                ),
+              ],
+            );
           },
         ))),
         new Container(

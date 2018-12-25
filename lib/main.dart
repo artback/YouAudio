@@ -74,7 +74,6 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
     play = new Play(widget.index);
     widget.index = null;
   }
-
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();

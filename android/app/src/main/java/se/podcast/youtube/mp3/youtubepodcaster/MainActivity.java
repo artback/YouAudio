@@ -2,7 +2,6 @@ package se.podcast.youtube.mp3.youtubepodcaster;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 
@@ -80,14 +79,11 @@ public class MainActivity extends FlutterActivity {
   private void download(Audio audio){
     DownloadTask task = new DownloadTask.Builder(audio.url, new File(audio.folder))
             .setFilename(audio.title + '.' + audio.fileEnding)
-            // the minimal interval millisecond for callback progress
             .setMinIntervalMillisCallbackProcess(30)
-            // do re-download even if the task has already been completed in the past.
             .setPassIfAlreadyCompleted(true)
             .build();
     NotificationListener listener = new NotificationListener(getApplicationContext());
-    listener.initNotification(audio);
+      listener.initNotification(audio);
     task.enqueue(listener);
-
   }
 }
