@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:audioplayer/audioplayer.dart';
 import 'package:media_notification/media_notification.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 enum PlayerState { stopped, playing, paused }
 class AudioPlayerSingleton{
@@ -35,7 +36,15 @@ class AudioPlayerSingleton{
     Random random = new Random();
     play(random.nextInt(files.length));
   }
-  void delete(int index){
+  Future delete(int index) async {
+    bool status = await SimplePermissions.checkPermission(
+        Permission.WriteExternalStorage);
+    while (!status) {
+      await SimplePermissions.requestPermission(
+          Permission.WriteExternalStorage);
+      status = await SimplePermissions.checkPermission(
+          Permission.WriteExternalStorage);
+    }
    if(current != null) {
      if (current >= index) {
        current -= 1 % files.length;

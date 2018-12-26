@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
@@ -20,6 +21,7 @@ class AudioInfo {
 
 class Downloader {
   static const platform = const MethodChannel('com.yaudio');
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   getAndDownloadYoutubeAudio(String url) async {
     bool status = await SimplePermissions.checkPermission(
@@ -74,12 +76,17 @@ class Downloader {
       try {
         String title =
             youtubeVideo.title.replaceAll("\/", "-").replaceAll("\\", "-");
+        SharedPreferences prefs =  await _prefs;
+        bool wifi =prefs.getBool('wifiOnly') ?? false;
+        bool notification = prefs.getBool('notifications') ?? true;
         await platform.invokeMethod('download', <String, dynamic>{
           'url': info.url,
           'folder': downloadLocation,
           'file_ending': '${info.fileType}',
           'title': '$title',
           'author': '${youtubeVideo.author}',
+          'wifi': wifi,
+          'notification' : notification
         });
       } on PlatformException {
         print('Failed to download audio');
