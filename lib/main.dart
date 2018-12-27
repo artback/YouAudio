@@ -26,7 +26,7 @@ void main() {
   ));
 }
 
-class MyTabs extends StatefulWidget {
+class MyTabs extends StatefulWidget { // ignore: must_be_immutable
   int index;
   MyTabs([this.index]);
   @override
@@ -62,7 +62,6 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
     controller = new TabController(vsync: this, length: 3);
     downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
-      print(account.email);
       if (account == null) {
         _handleSignIn();
       }

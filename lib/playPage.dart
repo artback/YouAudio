@@ -9,7 +9,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 
 
-class Play extends StatefulWidget {
+class Play extends StatefulWidget { // ignore: must_be_immutable
   int index;
   Play([this.index]);
   @override
