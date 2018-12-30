@@ -9,9 +9,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 
 
-class Play extends StatefulWidget { // ignore: must_be_immutable
-  int index;
-  Play([this.index]);
+class Play extends StatefulWidget {
   @override
   PlayState createState() {
     return new PlayState();
@@ -75,12 +73,8 @@ class PlayState extends State<Play> {
       duration = audio.duration;
      });
     }
-    if(widget.index != null){
-      audioPlayerSingleton.play(widget.index);
-      widget.index = null;
-    }
     SimplePermissions.checkPermission(Permission.ReadExternalStorage).then((status){
-      status ? null : SimplePermissions.requestPermission(Permission.ReadExternalStorage).then((status){
+      if(!status) SimplePermissions.requestPermission(Permission.ReadExternalStorage).then((status){
       new FilesSingleton().file().then((files) =>
           setState((){
           audioPlayerSingleton.files = files;

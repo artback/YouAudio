@@ -26,9 +26,7 @@ void main() {
   ));
 }
 
-class MyTabs extends StatefulWidget { // ignore: must_be_immutable
-  int index;
-  MyTabs([this.index]);
+class MyTabs extends StatefulWidget {
   @override
   MyTabsState createState() => new MyTabsState();
 }
@@ -70,8 +68,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
       });
     }).catchError((e) => print(e));
     controller = new TabController(vsync: this, length: 3);
-    play = new Play(widget.index);
-    widget.index = null;
+    play = new Play();
   }
   Future<void> _handleSignIn() async {
     try {

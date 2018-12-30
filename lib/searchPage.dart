@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:YouAudio/AudioPlayerSingleton.dart';
 import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:YouAudio/main.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
 
@@ -179,13 +179,13 @@ class _SearchListState extends State<SearchList>
     );
   }
   Widget _buildListTile(String path,int index){
+    onTap(){
+      Navigator.of(context).pop();
+      new AudioPlayerSingleton().play(index);
+    }
      return new ListTile(
          title: new Text(path.split('/').last.split('.').first),
-         onTap: () =>
-           Navigator.push(context, new MaterialPageRoute(
-           builder: (BuildContext context) => new MyTabs(index))
-           )
-       ,
+         onTap: onTap
      );
   }
   List<Widget> _buildSearchList() {
