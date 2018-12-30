@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:flutter/services.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import "package:youtube_parser/youtube_parser.dart";
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 var extractor = YouTubeExtractor();
 
@@ -20,13 +22,25 @@ class Downloader {
   static const platform = const MethodChannel('com.yaudio');
 
   getAndDownloadYoutubeAudio(String url) async {
+    bool status = await SimplePermissions.checkPermission(
+        Permission.WriteExternalStorage);
+    while (!status) {
+      await SimplePermissions.requestPermission(
+          Permission.WriteExternalStorage);
+      status = await SimplePermissions.checkPermission(
+          Permission.WriteExternalStorage);
+    }
     AudioInfo audioInfo = await youtubeToAudio(url);
-    requestYoutubeVideoInfo(url).then((video) =>
-        downloadAudio(audioInfo, '/storage/emulated/0/Yaudio', video));
+    requestYoutubeVideoInfo(url)
+        .then((video) => downloadAudio(audioInfo, video));
   }
 
   Future<Video> requestYoutubeVideoInfo(String url) {
-    var jsonUrl = 'https://www.youtube.com/oembed?url=$url&format=json';
+    if (!url.contains('/(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/')) {
+      url = 'https://www.youtube.com/watch?v=$url';
+    }
+    String jsonUrl = 'https://www.youtube.com/oembed?url=$url&format=json';
+    print(jsonUrl);
     getVideo(response) {
       Map videoMap = json.decode(response.body);
       Video video = Video.fromJson(videoMap);
@@ -37,7 +51,12 @@ class Downloader {
   }
 
   Future<AudioInfo> youtubeToAudio(String url) async {
-    String youtubeId = getIdFromUrl(url);
+    String youtubeId;
+    if (url.contains('/(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/')) {
+      youtubeId = getIdFromUrl(url);
+    } else {
+      youtubeId = url;
+    }
     var streamInfo = await extractor.getMediaStreamsAsync(youtubeId);
     return AudioInfo(
         streamInfo.audio.first.url,
@@ -48,26 +67,33 @@ class Downloader {
             .toLowerCase());
   }
 
-  downloadAudio(AudioInfo info, String downloadLocation, Video youtubeVideo) async {
+  downloadAudio(AudioInfo info, Video youtubeVideo) async {
+    Directory dir = await getExternalStorageDirectory();
+    String downloadLocation = dir.path + '/Yaudio';
     download() async {
       try {
+        String title =
+            youtubeVideo.title.replaceAll("\/", "-").replaceAll("\\", "-");
         await platform.invokeMethod('download', <String, dynamic>{
           'url': info.url,
           'folder': downloadLocation,
           'file_ending': '${info.fileType}',
-          'title': '${youtubeVideo.title}',
+          'title': '$title',
           'author': '${youtubeVideo.author}',
         });
       } on PlatformException {
         print('Failed to download audio');
       }
     }
+
     createDir() {
-      new Directory(downloadLocation).create(recursive: true)
+      new Directory(downloadLocation)
+          .create(recursive: true)
           .then((Directory directory) {
         download();
       });
     }
+
     final myDir = new Directory(downloadLocation);
     myDir.exists().then((isThere) {
       isThere ? download() : createDir();

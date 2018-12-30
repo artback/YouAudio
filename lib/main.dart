@@ -9,7 +9,6 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:simple_permissions/simple_permissions.dart';
 
 var extractor = YouTubeExtractor();
 
@@ -36,19 +35,11 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   Downloader downloader;
 
   getSharedText() async {
-
-    var sharedData = await platform.invokeMethod("getSharedText");
-    if (sharedData != null) {
-      bool status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
-      while(!status ){
-        await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
-        status = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
-      }
-      downloader.getAndDownloadYoutubeAudio(sharedData);
-    }
+    String sharedData = await platform.invokeMethod("getSharedText");
+    downloader.getAndDownloadYoutubeAudio(sharedData);
   }
 
-  GoogleSignInAccount _currentUser;
+  GoogleSignInAccount currentUser;
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
@@ -67,6 +58,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
       if (account == null) {
         _handleSignIn();
       }
+      currentUser = account;
     });
     controller = new TabController(vsync: this, length: 3);
   }

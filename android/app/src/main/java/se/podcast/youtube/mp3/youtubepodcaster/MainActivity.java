@@ -2,6 +2,7 @@ package se.podcast.youtube.mp3.youtubepodcaster;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -65,7 +66,7 @@ public class MainActivity extends FlutterActivity {
   boolean handleSendText(Intent intent) {
     boolean intentError = false;
     String extra =  intent.getStringExtra(Intent.EXTRA_TEXT);
-    if(extra.contains("youtube")) {
+    if(extra.contains("youtu")) {
       sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
     }else{
       Context context = getApplicationContext();
