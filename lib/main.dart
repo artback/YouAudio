@@ -17,6 +17,10 @@ void main() {
     title: 'YouAudio',
     debugShowCheckedModeBanner: false,
     home: new MyTabs(),
+    theme: new ThemeData(
+     primaryColor: Colors.red,
+     accentColor: Colors.red.shade900
+    ),
     routes: <String, WidgetBuilder>{
       '/search': (BuildContext context) => new SearchList(),
       '/play': (BuildContext context) => new Play(),

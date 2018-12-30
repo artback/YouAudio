@@ -91,11 +91,16 @@ class PlayState extends State<Play> {
     );
     audioPlayerSingleton.delete(position);
   }
+
+  _updateFiles(files){
+    if(this.mounted) {
+      setState(() {
+        audioPlayerSingleton.files = files;
+      });
+    }
+  }
   Widget build(BuildContext context) {
-    new FilesSingleton().file().then((files) =>
-        setState((){
-          audioPlayerSingleton.files = files;
-    }));
+    new FilesSingleton().file().then((files) => _updateFiles(files));
     return new Column(
       children: <Widget>[
         new Expanded(

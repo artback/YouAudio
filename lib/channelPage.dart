@@ -3,7 +3,7 @@ import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 
 class ChannelPage extends StatefulWidget {
-  final int id;
+  final String id;
 
   ChannelPage(this.id);
 
