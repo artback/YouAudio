@@ -1,4 +1,3 @@
-//import 'package:YouAudio/channelPage.dart';
 import 'package:YouAudio/channelPage.dart';
 
 import 'package:YouAudio/dataModel/subscribtions.dart';import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:YouAudio/main.dart';
 
 //my own ChannelId and apiKey  find out your own if you wanna try
 //login implementation should give ous a way to access a users ChannelId and apiKey
@@ -83,7 +83,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                           itemBuilder: (BuildContext context, int index) {
                             return ListTile(
                               title: RichText(
-                                  text: new TextSpan(
+                                text: new TextSpan(
                                 text: '${content[index].title}',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                                   }),
                               onTap: (){
                                 Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => new ChannelPage(content[index].channelId))
+                                    MaterialPageRoute(builder: (context) =>  new MyTabs(new ChannelPage(content[index].channelId),1))
                                 );
                               },
                             );

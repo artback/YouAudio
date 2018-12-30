@@ -1,5 +1,4 @@
 import 'package:YouAudio/dataModel/video.dart';
-import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 
 class ChannelPage extends StatefulWidget {
@@ -28,37 +27,34 @@ class ChannelPageState extends State<ChannelPage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    Navigator.of(context).pop();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(
-          backgroundColor: accentColor,
-          leading: new IconButton(
-            icon: new Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )),
-      body: new Container(
-          child: ListView.builder(
-        itemCount: videos != null ? videos.length : 0,
-        itemBuilder: (context, position) {
-          return ListTile(
-              title: RichText(
-                text: new TextSpan(
-                  text: '${videos[position].title}',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.black),
+    return new Container(
+        child: ListView.builder(
+          itemCount: videos != null ? videos.length : 0,
+          itemBuilder: (context, position) {
+            return ListTile(
+                title: RichText(
+                  text: new TextSpan(
+                    text: '${videos[position].title}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.black),
+                  ),
                 ),
-              ),
-              trailing: videos[position].downloaded
-                  ? new IconButton(
-                      icon: new Icon(Icons.file_download), onPressed: null)
-                  : new IconButton(
-                      icon: new Icon(Icons.play_arrow), onPressed: null));
-        },
-      )),
-    );
+                trailing: videos[position].downloaded
+                    ? new IconButton(
+                    icon: new Icon(Icons.file_download), onPressed: null)
+                    : new IconButton(
+                    icon: new Icon(Icons.play_arrow), onPressed: null));
+          },
+        ));
   }
 }

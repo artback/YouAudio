@@ -16,7 +16,7 @@ void main() {
   runApp(new MaterialApp(
     title: 'YouAudio',
     debugShowCheckedModeBanner: false,
-    home: new MyTabs(),
+    home: new MyTabs(new SubscriptionsPage(),0),
     theme: new ThemeData(
      primaryColor: Colors.red,
      accentColor: Colors.red.shade900
@@ -24,13 +24,15 @@ void main() {
     routes: <String, WidgetBuilder>{
       '/search': (BuildContext context) => new SearchList(),
       '/play': (BuildContext context) => new Play(),
-      '/main': (BuildContext context) => new MyTabs(),
       '/settings': (BuildContext context) => new Settings(),
     },
   ));
 }
 
 class MyTabs extends StatefulWidget {
+  final Widget secondTab;
+  final int activeTab;
+  const MyTabs(this.secondTab,this.activeTab);
   @override
   MyTabsState createState() => new MyTabsState();
 }
@@ -61,7 +63,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     getSharedText();
-    controller = new TabController(vsync: this, length: 3);
+    controller = new TabController(vsync: this, length: 2);
     downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
       if (account == null) {
@@ -71,7 +73,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         currentUser = account;
       });
     }).catchError((e) => print(e));
-    controller = new TabController(vsync: this, length: 3);
+    controller.index = widget.activeTab;
     play = new Play();
   }
   Future<void> _handleSignIn() async {
@@ -104,7 +106,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         ),
         body: new TabBarView(
             controller: controller,
-            children: <Widget>[play, new SubscriptionsPage()]
+            children: <Widget>[play, widget.secondTab]
         ));
   }
 }
