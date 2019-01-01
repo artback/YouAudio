@@ -55,7 +55,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
   void initState() {
     super.initState();
     subscribers = getData(subApi);
-
     //get json from to map(string, dynamic) variable if file exist
     getApplicationDocumentsDirectory().then((Directory directory) {
       dir = directory;
@@ -72,11 +71,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      child: FutureBuilder<List>(
+      child: FutureBuilder<List<Sub>>(
           future: subscribers,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<Sub> content = snapshot.data;
+              snapshot.data.map((data)=> print(data));
               return new Scaffold(
                   body: new ListView.builder(
                           itemCount: content.length,
@@ -160,10 +160,10 @@ Future<List<Sub>> getData(String url) async {
           false));
     }
 
-    //check if any of subbed acounts already is chosen by user if so add checked to true
+    //check if any of subbed accounts already is chosen by user if so add checked to true
     if (fileContent != null) {
       for (var i in fileContent["all"]) {
-        for (var x in items) {
+        for (Sub x in items) {
           if (i["id"] == x.id) {
             x.checked = true;
           }

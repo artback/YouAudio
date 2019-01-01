@@ -1,13 +1,12 @@
-import 'package:YouAudio/dataModel/content.dart';
 
-class Video extends Content {
+class Video {
   final bool downloaded;
   final String author;
-
-  Video(String title, this.downloaded, this.author) : super(title);
+  final String title;
+  Video(this.title, this.downloaded, this.author);
 
   Video.fromJson(Map<String, dynamic> json)
       : author = json['author_name'],
         downloaded = false,
-        super(json['title']);
+        title = (json['title']);
 }

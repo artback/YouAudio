@@ -266,9 +266,9 @@ class ChildItem extends StatelessWidget {
 //q: search string
 //returns Future list of video classes from search result
 Future<List> search(String search, String type) async {
-  var url =
+  String url =
       'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$search&maxResults=20&key=$apiKey&type=$type';
-  var response = await http
+  http.Response response = await http
       .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
 
   List<Video> videos = new List();

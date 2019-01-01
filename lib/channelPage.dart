@@ -1,6 +1,7 @@
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 class ChannelPage extends StatefulWidget {
   final String id;
 
@@ -14,24 +15,20 @@ class ChannelPage extends StatefulWidget {
 
 class ChannelPageState extends State<ChannelPage> {
   final List<Video> videos = new List();
+  getRssFeed(String id) async {
+   http.Response response = await http.get('https://www.youtube.com/feeds/videos.xml?channel_id=$id');
+   xml.XmlDocument document = xml.parse(response.body);
+   print(document.document.toString());
 
+  }
   @override
   void initState() {
+    print(widget.id);
+    // getRssFeed(widget.id);
     super.initState();
-    setState(() {
-      videos.add(new Video('Video 1', true, 'Author 1'));
-      videos.add(new Video('Video 2', false, 'Author 1'));
-      videos.add(new Video('Video 3', false, 'Author 2'));
-      videos.add(new Video('Video 3', false, 'Author 2'));
-    });
+
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    Navigator.of(context).pop();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
