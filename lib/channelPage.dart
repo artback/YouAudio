@@ -15,16 +15,15 @@ class ChannelPage extends StatefulWidget {
 
 class ChannelPageState extends State<ChannelPage> {
   final List<Video> videos = new List();
-  getRssFeed(String id) async {
+  Future<Iterable<xml.XmlElement>> getRssFeed(String id) async {
    http.Response response = await http.get('https://www.youtube.com/feeds/videos.xml?channel_id=$id');
    xml.XmlDocument document = xml.parse(response.body);
-   print(document.document.toString());
-
+   print(document.findAllElements('entry').length);
+   return document.findAllElements('entry');
   }
   @override
   void initState() {
-    print(widget.id);
-    // getRssFeed(widget.id);
+    getRssFeed(widget.id);
     super.initState();
 
   }
