@@ -109,7 +109,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                     child: new Icon(Icons.save),
                     onPressed: () {
                       var mySubscribers = [];
-                      for (var x in content) {
+                      for (Sub x in content) {
                         var temp = {};
                         if (x.checked) {
                           temp["id"] = x.id;
@@ -139,7 +139,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
 //takes fetched json and checks it with fetched subs to see of they already exists in file(could be broken out)
 //return List with all subs
 Future<List<Sub>> getData(String url) async {
-  var response = await http
+  http.Response response = await http
       .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
 
   if (response.statusCode == 200) {
@@ -155,7 +155,7 @@ Future<List<Sub>> getData(String url) async {
           x["id"],
           x["snippet"]["title"],
           x["snippet"]["description"],
-          x["snippet"]["channelId"],
+          x["snippet"]["resourceId"]["channelId"],
           x["snippet"]["thumbnails"]["default"]["url"],
           false));
     }
