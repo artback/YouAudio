@@ -191,10 +191,12 @@ Future<List> getData(String url) async {
     }
 
     //check if any of subbed acounts already is chosen by user if so add checked to true
-    for (var i in fileContent["all"]) {
-      for (var x in items) {
-        if (i["id"] == x.id) {
-          x.checked = true;
+    if (fileContent != null) {
+      for (var i in fileContent["all"]) {
+        for (var x in items) {
+          if (i["id"] == x.id) {
+            x.checked = true;
+          }
         }
       }
     }

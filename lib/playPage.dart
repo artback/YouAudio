@@ -1,16 +1,17 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:math';
 
+import 'package:YouAudio/AudioPlayerSingleton.dart';
+import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:simple_permissions/simple_permissions.dart';
-import 'package:media_notification/media_notification.dart';
 
-enum _PlayerState { stopped, playing, paused }
 
-class Play extends StatefulWidget {
+class Play extends StatefulWidget { // ignore: must_be_immutable
+  int index;
+  Play([this.index]);
   @override
   PlayState createState() {
     return new PlayState();
@@ -18,32 +19,20 @@ class Play extends StatefulWidget {
 }
 
 class PlayState extends State<Play> {
-  Duration duration;
-  Duration position;
-
-  List<FileSystemEntity> files = new List();
-  AudioPlayer audioPlayer = new AudioPlayer();
-
-  get isPlaying => playerState == _PlayerState.playing;
-
-  get isPaused => playerState == _PlayerState.paused;
-
-  get durationText =>
-      duration != null ? duration.toString().split('.').first : '';
-
-  get positionText =>
-      position != null ? position.toString().split('.').first : '';
-
-  get currentPlaying =>
-      files[current].path.split('/').last.split('.').first.split('|').first;
-
-  get currentPlayingShorted => currentPlaying.substring(
-      0, 35 > currentPlaying.length ? currentPlaying.length : 35);
-  bool changing = false;
-  _PlayerState playerState;
 
   StreamSubscription _positionSubscription;
   StreamSubscription _audioPlayerStateSubscription;
+  Duration duration;
+  Duration position;
+  AudioPlayerSingleton audioPlayerSingleton =  new AudioPlayerSingleton();
+  AudioPlayer get audio => audioPlayerSingleton.audioPlayer;
+
+
+  String get durationText =>
+      duration != null ? duration.toString().split('.').first : '';
+
+  String get positionText =>
+      position != null ? position.toString().split('.').first : '';
 
   int current;
 
@@ -51,169 +40,108 @@ class PlayState extends State<Play> {
   void dispose() {
     _positionSubscription.cancel();
     _audioPlayerStateSubscription.cancel();
-    audioPlayer.stop();
     super.dispose();
   }
 
-  void playRandom() {
-    Random random = new Random();
-    play(random.nextInt(files.length));
-  }
 
   void initAudioPlayer() {
-    audioPlayer = new AudioPlayer();
-    _positionSubscription = audioPlayer.onAudioPositionChanged
+    _positionSubscription = audio.onAudioPositionChanged
         .listen((p) => setState(() => position = p));
     _audioPlayerStateSubscription =
-        audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
-        setState(() => duration = audioPlayer.duration);
-      } else if (s == AudioPlayerState.STOPPED) {
-        setState(() {
-          position = duration;
+        audio.onPlayerStateChanged.listen((s) {
+          if (s == AudioPlayerState.PLAYING) {
+            setState(() => duration = audio.duration);
+          } else if (s == AudioPlayerState.STOPPED) {
+            duration= null;
+            setState(() {
+              position = duration;
+            });
+        } else if (s == AudioPlayerState.COMPLETED){
+            audioPlayerSingleton.next();
+        }
+        }, onError: (msg) {
+          setState(() {
+            audioPlayerSingleton.playerState = PlayerState.stopped;
+            duration = new Duration(seconds: 0);
+            position = new Duration(seconds: 0);
+          });
         });
-      }
-    }, onError: (msg) {
-      setState(() {
-        playerState = _PlayerState.stopped;
-        duration = new Duration(seconds: 0);
-        position = new Duration(seconds: 0);
-      });
-    });
   }
-
-  void initNotification() {
-    MediaNotification.setListener('pause', () {
-      pause();
-    });
-
-    MediaNotification.setListener('play', () {
-      pause();
-    });
-
-    MediaNotification.setListener('next', () {
-      next();
-    });
-
-    MediaNotification.setListener('prev', () {
-      previous();
-    });
-
-    MediaNotification.setListener('select', () {});
-  }
-
-  file() async {
-    bool status =
-        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while (!status) {
-      await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(
-          Permission.ReadExternalStorage);
-    }
-    Directory dir = Directory('/storage/emulated/0/Yaudio');
-    dir
-        .list(recursive: true, followLinks: false)
-        .toList()
-        .then((list) => setState(() {
-              files = list;
-            }));
-  }
-
-  Future<void> hide() async {
-    await MediaNotification.hide();
-  }
-
-  Future<void> show(title) async {
-    await MediaNotification.show(title: title, author: null);
-  }
-
   @override
   void initState() {
     super.initState();
-    file();
-    initAudioPlayer();
-    initNotification();
-  }
-
-  void play(int index) async {
-    changing = true;
-    setState(() {
-      duration = null;
+    if(audioPlayerSingleton.isPlaying){
+     setState(() {
+      duration = audio.duration;
+     });
+    }
+    if(widget.index != null){
+      audioPlayerSingleton.play(widget.index);
+      widget.index = null;
+    }
+    SimplePermissions.checkPermission(Permission.ReadExternalStorage).then((status){
+      status ? null : SimplePermissions.requestPermission(Permission.ReadExternalStorage).then((status){
+      new FilesSingleton().file().then((files) =>
+          setState((){
+          audioPlayerSingleton.files = files;
+        }));
+      });
     });
-    if (isPlaying) {
-      await audioPlayer.stop();
-    }
-    await audioPlayer.play(files[index].path);
-    setState(() => playerState = _PlayerState.playing);
-    setState(() => current = index);
-    show(currentPlayingShorted);
-    changing = false;
+    initAudioPlayer();
   }
-
-  Future previous() async {
-    while (changing) {
-      await new Future.delayed(const Duration(seconds: 5), () => "1");
-    }
-    play((current - 1) % files.length);
+  void delete(int position){
+    new FilesSingleton().file().then((files) =>
+        setState((){
+          audioPlayerSingleton.files = files;
+        })
+    );
+    audioPlayerSingleton.delete(position);
   }
-
-  Future next() async {
-    while (changing) {
-      await new Future.delayed(const Duration(seconds: 5), () => "1");
-    }
-    play((current + 1) % files.length);
-  }
-
-  Future<void> pause() async {
-    if (isPlaying) {
-      await audioPlayer.pause();
-      setState(() => playerState = _PlayerState.paused);
-      hide();
-    } else if (isPaused) {
-      await audioPlayer.play(files[current].path);
-      setState(() => playerState = _PlayerState.playing);
-      show(currentPlayingShorted);
-    }
-  }
-
   Widget build(BuildContext context) {
+    new FilesSingleton().file().then((files) =>
+        setState((){
+          audioPlayerSingleton.files = files;
+    }));
     return new Column(
       children: <Widget>[
         new Expanded(
-            // @TODO files list in container
             child: new Container(
                 child: ListView.builder(
-          itemCount: files == null ? 0 : files.length,
+          itemCount: audioPlayerSingleton.files == null ? 0 : audioPlayerSingleton.files.length,
           itemBuilder: (BuildContext context, int position) {
-            String title =
-                files[position].path.split('/').last.split('.').first;
+            String title = "";
+            if(audioPlayerSingleton.files != null ) {
+              title =
+                  audioPlayerSingleton.files[position].path
+                      .split('/')
+                      .last
+                      .split('.')
+                      .first;
+            }
             if (title.length >= 72) title = title.substring(0, 72) + "...";
-            String subtitle = "Some Author - 2:39";
-            return ListTile(
-              leading: new Icon(Icons.apps),
-              title: RichText(
-                text: new TextSpan(
-                  text: '$title',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black),
+            return Slidable(
+                delegate: new SlidableDrawerDelegate(),
+                actionExtentRatio: 0.2,
+                child: ListTile(
+                  title: RichText(
+                    text: new TextSpan(
+                      text: '$title',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black),
+                    ),
+                  ),
+                  onTap: () => audioPlayerSingleton.play(position),
                 ),
-              ),
-              subtitle: RichText(
-                text: new TextSpan(
-                  text: '$subtitle',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.blueGrey),
+              actions: <Widget>[
+                new IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red.shade900,
+                  icon: Icons.delete,
+                  onTap: () =>  delete(position),
                 ),
-              ),
-              trailing: new Icon(
-                Icons.edit,
-                size: 16,
-              ),
-              onTap: () => play(position),
+              ],
             );
           },
         ))),
@@ -227,7 +155,7 @@ class PlayState extends State<Play> {
                         ? new Container()
                         : new Slider(
                             value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                            onChanged: (double value) => audioPlayer
+                            onChanged: (double value) => audio
                                 .seek((value / 1000).roundToDouble()),
                             activeColor: Colors.white,
                             min: 0.0,
@@ -239,8 +167,8 @@ class PlayState extends State<Play> {
                           new RichText(
                               text: new TextSpan(text: '', children: [
                             new TextSpan(
-                              text: current != null
-                                  ? '$currentPlayingShorted '
+                              text: audioPlayerSingleton.current != null
+                                  ? '${audioPlayerSingleton.currentPlayingShorted} '
                                   : '',
                               style: new TextStyle(
                                   color: Colors.white,
@@ -272,10 +200,15 @@ class PlayState extends State<Play> {
                           new Row(
                             children: <Widget>[
                               new Expanded(child: new Container()),
-                              new PreviousButton(previous),
+                              new PreviousButton(audioPlayerSingleton.previous),
                               new Expanded(child: new Container()),
                               new RawMaterialButton(
-                                onPressed: pause,
+                                onPressed: (){
+                                  audioPlayerSingleton.pause();
+                                  setState(() {
+                                    audioPlayerSingleton.playerState = audioPlayerSingleton.playerState;
+                                  });
+                                },
                                 shape: new CircleBorder(),
                                 fillColor: Colors.white,
                                 splashColor: lightAccentColor,
@@ -286,14 +219,14 @@ class PlayState extends State<Play> {
                                 child: new Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: new Icon(
-                                        isPlaying
+                                        audioPlayerSingleton.isPlaying
                                             ? Icons.pause
                                             : Icons.play_arrow,
                                         color: darkAccentColor,
                                         size: 35.0)),
                               ),
                               new Expanded(child: new Container()),
-                              new NextButton(next),
+                              new NextButton(audioPlayerSingleton.next),
                               new Expanded(child: new Container()),
                             ],
                           )

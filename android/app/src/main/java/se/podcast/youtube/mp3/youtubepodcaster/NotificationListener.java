@@ -36,8 +36,6 @@ import com.liulishuo.okdownload.core.listener.DownloadListener4WithSpeed;
 import com.liulishuo.okdownload.core.listener.assist.Listener4SpeedAssistExtend;
 
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +46,6 @@ public class NotificationListener extends DownloadListener4WithSpeed {
     private NotificationCompat.Builder builder;
     private NotificationManager manager;
     private Context context;
-    private Audio audio;
 
     NotificationListener(Context context) {
         this.context = context.getApplicationContext();
@@ -58,7 +55,6 @@ public class NotificationListener extends DownloadListener4WithSpeed {
 
     void initNotification(Audio audio) {
         manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.audio = audio;
         String channelId = "YouAudio";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final NotificationChannel channel = new NotificationChannel(
@@ -166,5 +162,6 @@ public class NotificationListener extends DownloadListener4WithSpeed {
             // because of on some android phone too frequency notify for same id would be
             // ignored.
         }, 100);
+
     }
 }
