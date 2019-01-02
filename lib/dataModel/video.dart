@@ -1,12 +1,14 @@
 
 class Video {
-  final bool downloaded;
+  bool downloaded;
   final String author;
   final String title;
-  Video(this.title, this.downloaded, this.author);
+  final DateTime published;
+  Video(this.title, this.author,[this.published,this.downloaded]);
 
   Video.fromJson(Map<String, dynamic> json)
       : author = json['author_name'],
         downloaded = false,
+        published = null,
         title = (json['title']);
 }
