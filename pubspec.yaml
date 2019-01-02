@@ -29,6 +29,7 @@ dependencies:
   audioplayer: ^0.5.2
   flutter_slidable: "^0.4.9"
   media_notification: ^0.0.5
+  webfeed: ^0.4.1
   xml: ^3.2.3
 
 dev_dependencies:

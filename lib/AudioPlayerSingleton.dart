@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:YouAudio/FilesSingleton.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:media_notification/media_notification.dart';
 import 'package:simple_permissions/simple_permissions.dart';
@@ -63,6 +64,9 @@ class AudioPlayerSingleton{
   }
 
   void play(int index) async {
+    if(files == null){
+      files =  await new FilesSingleton().file();
+    }
     changing = true;
     await audioPlayer.stop();
     playerState = PlayerState.playing;
@@ -76,7 +80,6 @@ class AudioPlayerSingleton{
     }
     changing = false;
   }
-
   Future previous() async {
     while (changing) {
       await new Future.delayed(const Duration(seconds: 5), () => "1");

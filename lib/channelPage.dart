@@ -1,3 +1,6 @@
+import 'package:YouAudio/AudioPlayerSingleton.dart';
+import 'package:YouAudio/FilesSingleton.dart';
+import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/dataModel/video.dart';
 import 'package:YouAudio/rss.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +16,32 @@ class ChannelPage extends StatefulWidget {
 }
 
 class ChannelPageState extends State<ChannelPage> {
-  List<Video> channelVideos = new List();
+  List<Video> channelVideos;
+  Downloader downloader = new Downloader();
 
-
-  @override
-  void initState() {
-   getVideoListByChannelId((widget.id)).then((videos) => (){
+  Future _getVideos() async{
+    List<Video> videos = await getVideoListByChannelId((widget.id));
+    if(this.mounted) {
       setState(() {
         channelVideos = videos;
       });
-    });
+    }
+    _checkDownloadStatus();
+  }
+  _checkDownloadStatus() async{
+    channelVideos.forEach((title) => _isInDirectory(title));
+  }
+  _isInDirectory(Video video){
+    List<String> filename = new FilesSingleton().filename;
+    video.downloaded = filename.contains(video.title);
+    if(video.downloaded) {
+      video.index = filename.indexOf(video.title);
+    }
+  }
+  @override
+  void initState() {
+    _getVideos();
     super.initState();
-
   }
 
 
@@ -40,15 +57,19 @@ class ChannelPageState extends State<ChannelPage> {
                     text: '${channelVideos[position].title}',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 16,
                         color: Colors.black),
                   ),
                 ),
                 trailing: channelVideos[position].downloaded
                     ? new IconButton(
-                    icon: new Icon(Icons.file_download), onPressed: null)
+                    icon: new Icon(Icons.play_arrow), onPressed: (){
+                      new AudioPlayerSingleton().play(channelVideos[position].index);
+                    })
                     : new IconButton(
-                    icon: new Icon(Icons.play_arrow), onPressed: null));
+                    icon: new Icon(Icons.file_download), onPressed: (){
+                    downloader.getAndDownloadYoutubeAudio(channelVideos[position].url.split('=').last);
+                  }));
           },
         ));
   }

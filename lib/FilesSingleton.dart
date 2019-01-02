@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 class FilesSingleton{
   static final FilesSingleton _singleton = new FilesSingleton._internal();
   List<FileSystemEntity> files = new List();
+  List<String>  get filename =>  files.map((file) => file.uri.pathSegments.last.split('.').first).toList();
   factory FilesSingleton() {
     return _singleton;
   }

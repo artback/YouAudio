@@ -88,7 +88,7 @@ public class MainActivity extends FlutterActivity {
             .setWifiRequired(wifi)
             .setPassIfAlreadyCompleted(true)
             .build();
-      if(notification && wifi) {
+      if(notification && !wifi) {
         NotificationListener listener = new NotificationListener(getApplicationContext());
         listener.initNotification(audio);
         task.enqueue(listener);

@@ -40,7 +40,7 @@ class MyTabs extends StatefulWidget {
 class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
-  Downloader downloader;
+  Downloader downloader = new Downloader();
   Play play;
 
   getSharedText() async {
@@ -64,7 +64,6 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
     super.initState();
     getSharedText();
     controller = new TabController(vsync: this, length: 2);
-    downloader = new Downloader();
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
       if (account == null) {
         _handleSignIn();
@@ -74,7 +73,6 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
       });
     }).catchError((e) => print(e));
     controller.index = widget.activeTab;
-    play = new Play();
   }
   Future<void> _handleSignIn() async {
     try {
@@ -106,7 +104,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         ),
         body: new TabBarView(
             controller: controller,
-            children: <Widget>[play, widget.secondTab]
+            children: <Widget>[new Play(), widget.secondTab]
         ));
   }
 }

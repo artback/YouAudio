@@ -61,8 +61,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
       jsonFile = new File(dir.path + "/" + fileName);
       fileExists = jsonFile.existsSync();
       if (fileExists) {
-        this.setState(
-            () => fileContent = json.decode(jsonFile.readAsStringSync()));
+        if (this.mounted) {
+          this.setState(
+                  () => fileContent = json.decode(jsonFile.readAsStringSync()));
+        }
       }
 
     });
