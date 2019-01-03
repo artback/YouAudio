@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:YouAudio/AudioPlayerSingleton.dart';
 import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/YoutubeToAudio.dart';
+import 'package:YouAudio/dataModel/subscribtions.dart';
+import 'package:YouAudio/jsonSubsribtions.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -28,7 +30,6 @@ class _SearchListState extends State<SearchList>
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
 
-  bool _value = false;
   String _searchText = "";
   TabController controller;
   Future<List> foundVideos;
@@ -130,19 +131,30 @@ class _SearchListState extends State<SearchList>
             }));
   }
 
-  void _valueChanged(bool value) => setState(() => _value = value);
+  saveToSubscibtions(List<Video> content){
+    List<Sub> theSubs = new List();
+    ifChecked(Video vid){
+      if(vid.checked){
+        theSubs.add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked)) ;
+      }
+    }
+    content.forEach(ifChecked);
+    addToFile(theSubs);
+  }
 
-  //builds view that present youtube videos
+  //builds view that present youtube channels
   Container buildChannelList() {
     return new Container(
         child: FutureBuilder<List>(
             future: foundChannels,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                List content = snapshot.data;
+                List<Video> content = snapshot.data;
                 //print(content[0].title);
                 return new Container(
-                    child: new ListView.builder(
+                    child: new Scaffold(
+                        body:
+                        new ListView.builder(
                         itemCount: content.length,
                         itemExtent: 150.0,
                         itemBuilder: (BuildContext context, int index) {
@@ -162,9 +174,17 @@ class _SearchListState extends State<SearchList>
                                     fontSize: 15,
                                     color: Colors.black),
                               )),
-                              trailing: Checkbox(
-                                  value: _value, onChanged: _valueChanged));
-                        }));
+                              trailing: Checkbox(value: content[index].checked , onChanged: ( bool value) => setState(() {
+                                content[index].checked = value;
+                                })
+                              ));
+                        }),
+                        floatingActionButton: new FloatingActionButton(
+                          child: new Icon(Icons.save),
+                          onPressed: saveToSubscibtions(content) ,
+                        )
+                    ),
+                    );
               } else {
                 return Text("${snapshot.error}");
               }
@@ -282,7 +302,10 @@ Future<List> search(String search, String type) async {
             video["id"]["videoId"],
             video["snippet"]["title"],
             video["snippet"]["thumbnails"]["default"]["url"],
-            video["snippet"]["channelTitle"]));
+            video["snippet"]["channelTitle"],
+            video["snippet"]["channelId"]
+        ));
+
       }
     }
     return videos;
@@ -296,13 +319,16 @@ class Video {
   String videoId;
   String title;
   String thumbnail;
+  String channelId;
   String channelTitle;
+  bool checked = false;
 
   Video(
     this.videoId,
     this.title,
     this.thumbnail,
     this.channelTitle,
+    this.channelId
   );
 }
 

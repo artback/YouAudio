@@ -1,12 +1,11 @@
 import 'package:YouAudio/channelPage.dart';
 
-import 'package:YouAudio/dataModel/subscribtions.dart';import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:YouAudio/dataModel/subscribtions.dart';
+import 'package:YouAudio/jsonSubsribtions.dart';import 'package:flutter/material.dart';
 
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 import 'package:YouAudio/main.dart';
 
 //my own ChannelId and apiKey  find out your own if you wanna try
@@ -17,11 +16,6 @@ var subApi =
     "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&channelId=$channelID&maxResults=20&key=$apiKey";
 
 //variables for writing/reading from file
-File jsonFile;
-Directory dir;
-String fileName = "chosenSubscribers.json";
-bool fileExists = false;
-Map<String, dynamic> fileContent;
 
 class SubscriptionsPage extends StatefulWidget {
   @override
@@ -31,48 +25,27 @@ class SubscriptionsPage extends StatefulWidget {
 }
 
 class SubscriptionsPageState extends State<SubscriptionsPage> {
-  Future<List<Sub>> subscribers;
   List<Sub> mySubs = new List();
 
-  void createFile() {
-    print("Creating file!");
-    File file = new File(dir.path + "/" + fileName);
-    file.createSync();
-    fileExists = true;
-  }
 
   //give decoded json string and it will write that to file
-  void writeToFile(String subs) {
-    print("Writing to file!");
-    if (fileExists) {
-      jsonFile.writeAsStringSync(subs);
-    } else {
-      createFile();
-    }
-    this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
-  }
   @override
   void initState() {
     super.initState();
-    subscribers = getData(subApi);
-    //get json from to map(string, dynamic) variable if file exist
-    getApplicationDocumentsDirectory().then((Directory directory) {
-      dir = directory;
-      jsonFile = new File(dir.path + "/" + fileName);
-      fileExists = jsonFile.existsSync();
-      if (fileExists) {
-          fileContent = json.decode(jsonFile.readAsStringSync());
-          List filec = fileContent.values.first;
-          filec.forEach((sub) => mySubs.add(new Sub(sub['id'], sub['title'], sub['description'], sub['channelId'], sub['img'], sub['checked'])));
-          setState(() { mySubs = mySubs;});
-      }else{
-        createFile();
-      }
-    });
+    //@TODO save data to the array
+    getData(subApi);
+  }
+  _getSubs(){
+      getSubscribtionsFromFile().then((value) =>
+          setState((){
+            mySubs = value;
+          })
+      );
   }
 
   @override
   Widget build(BuildContext context) {
+    _getSubs();
     return new Container(
                   child:
                   new Scaffold(
@@ -106,18 +79,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                   floatingActionButton: new FloatingActionButton(
                     child: new Icon(Icons.save),
                     onPressed: () {
-                      var mySubscribers = [];
-                      for (Sub x in mySubs) {
-                        var temp = {};
-                          temp["id"] = x.id;
-                          temp["title"] = x.title;
-                          temp["description"] = x.description;
-                          temp["channelId"] = x.channelId;
-                          temp["img"] = x.img;
-                          temp["checked"] = x.checked;
-                          mySubscribers.add(temp);
-                      }
-                      writeToFile(json.encode({"all": mySubscribers}));
+                      writeToFile(mySubs);
                     },
                   )
     )
@@ -142,24 +104,14 @@ Future<List<Sub>> getData(String url) async {
     //add all found subbed accounts from api to a list
     for (var x in subsList) {
       items.add(new Sub(
-          x["id"],
           x["snippet"]["title"],
-          x["snippet"]["description"],
           x["snippet"]["resourceId"]["channelId"],
           x["snippet"]["thumbnails"]["default"]["url"],
-          false));
+          false,
+          x["snippet"]["description"]
+      ));
     }
 
-    //check if any of subbed accounts already is chosen by user if so add checked to true
-    if (fileContent != null) {
-      for (var i in fileContent["all"]) {
-        for (Sub x in items) {
-          if (i["id"] == x.id) {
-            x.checked = true;
-          }
-        }
-      }
-    }
   }
   return items;
 }

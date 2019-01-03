@@ -1,12 +1,11 @@
 class Sub {
-  final String id;
-  final String title;
-  final String description;
+  String title;
   final String channelId;
   final String img;
   bool checked;
+  final String description;
 
-  Sub(this.id, this.title, this.description, this.channelId, this.img, checked ){
+  Sub(this.title, this.channelId, this.img, checked,[this.description]){
    checked == null ? this.checked = false :this.checked =checked;
   }
 }
