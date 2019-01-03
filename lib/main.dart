@@ -16,15 +16,23 @@ void main() {
   runApp(new MaterialApp(
     title: 'YouAudio',
     debugShowCheckedModeBanner: false,
-    home: new MyTabs(),
+    home: new MyTabs(new SubscriptionsPage(),0),
+    theme: new ThemeData(
+     primaryColor: Colors.red,
+     accentColor: Colors.red.shade900
+    ),
     routes: <String, WidgetBuilder>{
       '/search': (BuildContext context) => new SearchList(),
+      '/play': (BuildContext context) => new Play(),
       '/settings': (BuildContext context) => new Settings(),
     },
   ));
 }
 
 class MyTabs extends StatefulWidget {
+  final Widget secondTab;
+  final int activeTab;
+  const MyTabs(this.secondTab,this.activeTab);
   @override
   MyTabsState createState() => new MyTabsState();
 }
@@ -32,11 +40,14 @@ class MyTabs extends StatefulWidget {
 class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   static const platform = const MethodChannel('app.channel.shared.data');
   TabController controller;
-  Downloader downloader;
+  Downloader downloader = new Downloader();
+  Play play;
 
   getSharedText() async {
     String sharedData = await platform.invokeMethod("getSharedText");
-    downloader.getAndDownloadYoutubeAudio(sharedData);
+    if(sharedData != null) {
+      downloader.getAndDownloadYoutubeAudio(sharedData);
+    }
   }
 
   GoogleSignInAccount currentUser;
@@ -52,17 +63,17 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     getSharedText();
-    controller = new TabController(vsync: this, length: 3);
-    downloader = new Downloader();
+    controller = new TabController(vsync: this, length: 2);
     _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
       if (account == null) {
         _handleSignIn();
       }
-      currentUser = account;
-    });
-    controller = new TabController(vsync: this, length: 3);
+      setState(() {
+        currentUser = account;
+      });
+    }).catchError((e) => print(e));
+    controller.index = widget.activeTab;
   }
-
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
@@ -93,6 +104,7 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
         ),
         body: new TabBarView(
             controller: controller,
-            children: <Widget>[new Play(), new SubscriptionsPage()]));
+            children: <Widget>[new Play(), widget.secondTab]
+        ));
   }
 }

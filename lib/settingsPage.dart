@@ -1,6 +1,7 @@
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   Settings({Key key}) : super(key: key);
@@ -18,6 +19,9 @@ class _SettingsState extends State<Settings>
   Future<bool> _notifications;
   Future<bool> _autoDownload;
   Future<int> _syncInterval;
+  Future<String> _channelId;
+
+  final TextEditingController _channelIdQuery = new TextEditingController();
 
   @override
   void initState() {
@@ -34,6 +38,28 @@ class _SettingsState extends State<Settings>
     });
     _syncInterval = _prefs.then((SharedPreferences prefs) {
       return (prefs.getInt('syncInterval') ?? 5);
+    });
+    _channelId = _prefs.then((SharedPreferences prefs) {
+      return (prefs.getString('channelId') ?? "");
+    });
+  }
+
+  _SettingsState() {
+    _channelIdQuery.addListener(() {
+      if (_channelIdQuery.text.isNotEmpty) {
+        setState(() {
+          _setChannelId(_channelIdQuery.text);
+        });
+      }
+    });
+  }
+
+  void _setChannelId(String value) async {
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      _channelId = prefs.setString("channelId", value).then((bool success) {
+        return value;
+      });
     });
   }
 
@@ -74,6 +100,15 @@ class _SettingsState extends State<Settings>
     });
   }
 
+  _openChannelIdUrl() async {
+    const url = 'https://www.youtube.com/account_advanced';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -93,93 +128,78 @@ class _SettingsState extends State<Settings>
             FutureBuilder<bool>(
                 future: _wifiOnly,
                 builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const CircularProgressIndicator();
-                    default:
-                      if (snapshot.hasError)
-                        return Text('Error: ${snapshot.error}');
-                      else
-                        return new CheckboxListTile(
-                          value: snapshot.data,
-                          onChanged: _valueWifiOnlyChanged,
-                          title: new Text('Wifi Only'),
-                          controlAffinity: ListTileControlAffinity.trailing,
-                          subtitle: new Text(
-                              'Enabling this, the app will only download while on WiFi'),
-                          secondary: new Icon(Icons.wifi),
-                          activeColor: Colors.red,
-                        );
-                  }
+                  return new CheckboxListTile(
+                    value: snapshot.data,
+                    onChanged: _valueWifiOnlyChanged,
+                    title: new Text('Wifi Only'),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    subtitle: new Text(
+                        'Enabling this, the app will only download while on WiFi'),
+                    secondary: new Icon(Icons.wifi),
+                    activeColor: Colors.red,
+                  );
                 }),
             Spacer(),
             FutureBuilder<bool>(
                 future: _notifications,
                 builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const CircularProgressIndicator();
-                    default:
-                      if (snapshot.hasError)
-                        return Text('Error: ${snapshot.error}');
-                      else
-                        return new CheckboxListTile(
-                          value: snapshot.data,
-                          onChanged: _valueNotificationsChanged,
-                          title: new Text('Notifications'),
-                          controlAffinity: ListTileControlAffinity.trailing,
-                          subtitle: new Text(
-                              'Enabling this, the app will notify you whenever a file is done downloading'),
-                          secondary: new Icon(Icons.notifications),
-                          activeColor: Colors.red,
-                        );
-                  }
+                  return new CheckboxListTile(
+                    value: snapshot.data,
+                    onChanged: _valueNotificationsChanged,
+                    title: new Text('Notifications'),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    subtitle: new Text(
+                        'Enabling this, the app will notify you whenever a file is done downloading'),
+                    secondary: new Icon(Icons.notifications),
+                    activeColor: Colors.red,
+                  );
                 }),
             Spacer(),
             FutureBuilder<bool>(
                 future: _autoDownload,
                 builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const CircularProgressIndicator();
-                    default:
-                      if (snapshot.hasError)
-                        return Text('Error: ${snapshot.error}');
-                      else
-                        return new CheckboxListTile(
-                          value: snapshot.data,
-                          onChanged: _valueAutoDownloadChanged,
-                          title: new Text('Auto Download'),
-                          controlAffinity: ListTileControlAffinity.trailing,
-                          subtitle: new Text(
-                              'Enabling this, the app will download the videos whenever an user uploads a video'),
-                          secondary: new Icon(Icons.file_download),
-                          activeColor: Colors.red,
-                        );
-                  }
+                  return new CheckboxListTile(
+                    value: snapshot.data,
+                    onChanged: _valueAutoDownloadChanged,
+                    title: new Text('Auto Download'),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    subtitle: new Text(
+                        'Enabling this, the app will download the videos whenever an user uploads a video'),
+                    secondary: new Icon(Icons.file_download),
+                    activeColor: Colors.red,
+                  );
                 }),
+            Spacer(),
+            FutureBuilder<String>(
+                future: _channelId,
+                builder:
+                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  return new TextField(
+                    controller: _channelIdQuery,
+                    decoration: new InputDecoration(
+                        prefixIcon: new Icon(Icons.edit),
+                        hintText: snapshot.data,
+                        helperText: "Channel ID"),
+                  );
+                }),
+            new RaisedButton(
+              onPressed: _openChannelIdUrl,
+              child: new Text('Link to channel ID'),
+            ),
             Spacer(),
             FutureBuilder<int>(
                 future: _syncInterval,
                 builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const CircularProgressIndicator();
-                    default:
-                      if (snapshot.hasError)
-                        return Text('Error: ${snapshot.error}');
-                      else
-                        return new DropdownButton<int>(
-                          hint: Text("Sync Interval: ${snapshot.data}"),
-                          items: <int>[1, 5, 15, 30, 60].map((int value) {
-                            return new DropdownMenuItem<int>(
-                              value: value,
-                              child: new Text("$value minutes"),
-                            );
-                          }).toList(),
-                          onChanged: _valueCheckIntervalChanged,
-                        );
-                  }
+                  return new DropdownButton<int>(
+                    hint: Text("Sync Interval: ${snapshot.data}"),
+                    items: <int>[1, 5, 15, 30, 60].map((int value) {
+                      return new DropdownMenuItem<int>(
+                        value: value,
+                        child: new Text("$value minutes"),
+                      );
+                    }).toList(),
+                    onChanged: _valueCheckIntervalChanged,
+                  );
                 }),
             Spacer(flex: 5),
           ],

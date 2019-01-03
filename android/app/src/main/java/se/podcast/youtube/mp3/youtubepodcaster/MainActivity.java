@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.liulishuo.okdownload.DownloadListener;
 import com.liulishuo.okdownload.DownloadTask;
 
 import java.io.File;
@@ -57,8 +58,11 @@ public class MainActivity extends FlutterActivity {
                           (String) call.argument("folder"),
                           (String) call.argument("file_ending"),
                           (String) call.argument("author")
+
                       );
-                      download(audio);
+                      boolean wifi = call.argument("wifi");
+                      boolean notification = call.argument("notification");
+                      download(audio,wifi,notification);
                     }
                   }
                 });
@@ -77,17 +81,20 @@ public class MainActivity extends FlutterActivity {
     }
     return intentError;
   }
-  private void download(Audio audio){
+  private void download(Audio audio,boolean wifi,boolean notification){
     DownloadTask task = new DownloadTask.Builder(audio.url, new File(audio.folder))
             .setFilename(audio.title + '.' + audio.fileEnding)
-            // the minimal interval millisecond for callback progress
             .setMinIntervalMillisCallbackProcess(30)
-            // do re-download even if the task has already been completed in the past.
+            .setWifiRequired(wifi)
             .setPassIfAlreadyCompleted(true)
             .build();
-    NotificationListener listener = new NotificationListener(getApplicationContext());
-    listener.initNotification(audio);
-    task.enqueue(listener);
-
+      if(notification && !wifi) {
+        NotificationListener listener = new NotificationListener(getApplicationContext());
+        listener.initNotification(audio);
+        task.enqueue(listener);
+      }else{
+        DownloadListener listener = new ListenerSample().listener();
+        task.enqueue(listener);
+      }
   }
 }

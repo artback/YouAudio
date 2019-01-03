@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:YouAudio/AudioPlayerSingleton.dart';
+import 'package:YouAudio/FilesSingleton.dart';
 import 'package:YouAudio/YoutubeToAudio.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:simple_permissions/simple_permissions.dart';
 
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
 
@@ -14,11 +15,12 @@ class SearchList extends StatefulWidget {
 
   @override
   _SearchListState createState() => new _SearchListState();
+
 }
 
 class _SearchListState extends State<SearchList>
     with SingleTickerProviderStateMixin {
-  List<FileSystemEntity> files = new List();
+  List<FileSystemEntity> files = new FilesSingleton().files;
   Widget appBarTitle = new Text(
     "",
     style: new TextStyle(color: Colors.white),
@@ -37,7 +39,6 @@ class _SearchListState extends State<SearchList>
   void initState() {
     super.initState();
     controller = new TabController(vsync: this, length: 3);
-    init();
     foundVideos = search(_searchText, "video");
     foundChannels = search(_searchText, "channel");
     downloader = new Downloader();
@@ -59,9 +60,6 @@ class _SearchListState extends State<SearchList>
     });
   }
 
-  void init() {
-    file();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,41 +178,39 @@ class _SearchListState extends State<SearchList>
       children: _buildSearchList(),
     );
   }
-
-  List<ChildItem> _buildSearchList() {
-    if (_searchText.isEmpty) {
-      return files
-          .map((contact) =>
-              new ChildItem(contact.path.split('/').last.split('.').first))
-          .toList();
+  Widget _buildListTile(String path,int index){
+    onTap(){
+      Navigator.of(context).pop();
+      new AudioPlayerSingleton().play(index);
+    }
+     return new ListTile(
+         title: new Text(path.split('/').last.split('.').first),
+         onTap: onTap
+     );
+  }
+  List<Widget> _buildSearchList() {
+    List<ListItem> _searchList = List();
+    if(_searchText.isEmpty) {
+      for (int i = 0; i < files.length; i++) {
+          _searchList.add(new ListItem(i, files[i].path));
+        }
     } else {
-      List<String> _searchList = List();
       for (int i = 0; i < files.length; i++) {
         String name = files.elementAt(i).path.split('/').last.split('.').first;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(name);
+          _searchList.add(new ListItem(i, name));
+
         }
       }
-      return _searchList.map((contact) => new ChildItem(contact)).toList();
+
     }
+    List<Widget> listTiles = new List();
+    for(int i = 0; i < _searchList.length; i++){
+       listTiles.add(_buildListTile(_searchList[i].name,_searchList[i].index));
+    }
+    return  listTiles;
   }
 
-  file() async {
-    bool status =
-        await SimplePermissions.checkPermission(Permission.ReadExternalStorage);
-    while (!status) {
-      await SimplePermissions.requestPermission(Permission.ReadExternalStorage);
-      status = await SimplePermissions.checkPermission(
-          Permission.ReadExternalStorage);
-    }
-    Directory dir = Directory('/storage/emulated/0/Yaudio');
-    dir
-        .list(recursive: true, followLinks: false)
-        .toList()
-        .then((list) => setState(() {
-              files = list;
-            }));
-  }
 
   Widget buildBar(BuildContext context) {
     return new AppBar(
@@ -270,9 +266,9 @@ class ChildItem extends StatelessWidget {
 //q: search string
 //returns Future list of video classes from search result
 Future<List> search(String search, String type) async {
-  var url =
+  String url =
       'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$search&maxResults=20&key=$apiKey&type=$type';
-  var response = await http
+  http.Response response = await http
       .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
 
   List<Video> videos = new List();
@@ -308,4 +304,10 @@ class Video {
     this.thumbnail,
     this.channelTitle,
   );
+}
+
+class ListItem{
+  final int index;
+  final String name;
+  ListItem(this.index, this.name);
 }
