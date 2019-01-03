@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:media_notification/media_notification.dart';
+import 'package:sensors/sensors.dart';
 
 enum _PlayerState { stopped, playing, paused }
 
@@ -133,6 +134,23 @@ class PlayState extends State<Play> {
     file();
     initAudioPlayer();
     initNotification();
+
+    //onshake switch song
+    int breaker = 1;
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      if(event.y > 19) {
+        if(breaker == 1) {
+          new Timer(new Duration(seconds: 2), () {
+            breaker = 1;
+          });
+        }
+        if(breaker == 1 && isPlaying) {
+          print("y:" + event.y.toString());
+          next();
+        }
+        breaker = 0;
+      }
+    });
   }
 
   void play(int index) async {
