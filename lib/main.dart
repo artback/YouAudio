@@ -8,7 +8,6 @@ import 'package:YouAudio/subscritonsPage.dart';
 import 'package:YouAudio/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_extractor/youtube_extractor.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 var extractor = YouTubeExtractor();
 
@@ -50,36 +49,13 @@ class MyTabsState extends State<MyTabs> with TickerProviderStateMixin {
     }
   }
 
-  GoogleSignInAccount currentUser;
-
-  GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'https://www.googleapis.com/auth/youtube.readonly',
-    ],
-  );
 
   @override
   void initState() {
     super.initState();
     getSharedText();
     controller = new TabController(vsync: this, length: 2);
-    _googleSignIn.signInSilently().then((GoogleSignInAccount account) {
-      if (account == null) {
-        _handleSignIn();
-      }
-      setState(() {
-        currentUser = account;
-      });
-    }).catchError((e) => print(e));
     controller.index = widget.activeTab;
-  }
-  Future<void> _handleSignIn() async {
-    try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      print("Something went wrong: $error");
-    }
   }
 
   @override

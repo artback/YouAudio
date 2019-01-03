@@ -6,6 +6,7 @@ class Sub {
   final String img;
   bool checked;
 
-  Sub(this.id, this.title, this.description, this.channelId, this.img,
-      this.checked);
+  Sub(this.id, this.title, this.description, this.channelId, this.img, checked ){
+   checked == null ? this.checked = false :this.checked =checked;
+  }
 }

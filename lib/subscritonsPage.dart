@@ -11,7 +11,7 @@ import 'package:YouAudio/main.dart';
 
 //my own ChannelId and apiKey  find out your own if you wanna try
 //login implementation should give ous a way to access a users ChannelId and apiKey
-var channelID = "UCo2fdNt0ix-2JT06o_RmqCQ";
+var channelID = "UCo2t0ix-2JT06o_RmqCQ";
 var apiKey = "AIzaSyBKdwbjbsGdHyNPS0q3J6cffOsUSfiqCx4";
 var subApi =
     "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&channelId=$channelID&maxResults=20&key=$apiKey";
@@ -32,6 +32,7 @@ class SubscriptionsPage extends StatefulWidget {
 
 class SubscriptionsPageState extends State<SubscriptionsPage> {
   Future<List<Sub>> subscribers;
+  List<Sub> mySubs = new List();
 
   void createFile() {
     print("Creating file!");
@@ -50,7 +51,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
     }
     this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
   }
-
   @override
   void initState() {
     super.initState();
@@ -61,48 +61,44 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
       jsonFile = new File(dir.path + "/" + fileName);
       fileExists = jsonFile.existsSync();
       if (fileExists) {
-        if (this.mounted) {
-          this.setState(
-                  () => fileContent = json.decode(jsonFile.readAsStringSync()));
-        }
+          fileContent = json.decode(jsonFile.readAsStringSync());
+          List filec = fileContent.values.first;
+          filec.forEach((sub) => mySubs.add(new Sub(sub['id'], sub['title'], sub['description'], sub['channelId'], sub['img'], sub['checked'])));
+          setState(() { mySubs = mySubs;});
+      }else{
+        createFile();
       }
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return new Container(
-      child: FutureBuilder<List<Sub>>(
-          future: subscribers,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              List<Sub> content = snapshot.data;
-              snapshot.data.map((data)=> print(data));
-              return new Scaffold(
+                  child:
+                  new Scaffold(
                   body: new ListView.builder(
-                          itemCount: content.length,
+                          itemCount: mySubs != null ? mySubs.length : 0  ,
                           itemBuilder: (BuildContext context, int index) {
                             return ListTile(
                               title: RichText(
                                 text: new TextSpan(
-                                text: '${content[index].title}',
+                                text: '${mySubs[index].title}',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                     color: Colors.black),
                               )),
                               trailing: new Checkbox(
-                                  value: content[index].checked,
+                                  value: mySubs[index].checked != null ? mySubs[index].checked : false,
                                   //on press change checked value to true/false
                                   onChanged: (bool value) {
                                     setState(() {
-                                      content[index].checked = value;
+                                      mySubs[index].checked = value;
                                     });
                                   }),
                               onTap: (){
                                 Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) =>  new MyTabs(new ChannelPage(content[index].channelId),1))
+                                    MaterialPageRoute(builder: (context) =>  new MyTabs(new ChannelPage(mySubs[index].channelId),1))
                                 );
                               },
                             );
@@ -111,27 +107,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                     child: new Icon(Icons.save),
                     onPressed: () {
                       var mySubscribers = [];
-                      for (Sub x in content) {
+                      for (Sub x in mySubs) {
                         var temp = {};
-                        if (x.checked) {
                           temp["id"] = x.id;
                           temp["title"] = x.title;
                           temp["description"] = x.description;
                           temp["channelId"] = x.channelId;
                           temp["img"] = x.img;
+                          temp["checked"] = x.checked;
                           mySubscribers.add(temp);
-                        }
                       }
-                      createFile();
                       writeToFile(json.encode({"all": mySubscribers}));
                     },
                   )
-              );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return CircularProgressIndicator();
-          }),
+    )
     );
   }
 }
@@ -143,11 +132,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
 Future<List<Sub>> getData(String url) async {
   http.Response response = await http
       .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-
+  List<Sub> items = new List();
   if (response.statusCode == 200) {
     Map<String, dynamic> subsInfo = json.decode(response.body);
     List subsList = subsInfo['items'];
-    List<Sub> items = new List();
 
     //could combine the two for loops below but this works
 
@@ -172,10 +160,7 @@ Future<List<Sub>> getData(String url) async {
         }
       }
     }
-
-    return items;
-  } else {
-    throw Exception('Failed to load post');
   }
+  return items;
 }
 
