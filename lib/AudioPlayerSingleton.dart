@@ -52,7 +52,6 @@ class AudioPlayerSingleton{
        if(current == -1){
          current = 0;
        }
-       print(current);
        play(current);
      }
    }
