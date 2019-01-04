@@ -49,6 +49,10 @@ class AudioPlayerSingleton{
    if(current != null) {
      if (current >= index) {
        current -= 1 % files.length;
+       if(current == -1){
+         current = 0;
+       }
+       print(current);
        play(current);
      }
    }
