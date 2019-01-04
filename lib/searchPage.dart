@@ -119,8 +119,7 @@ class _SearchListState extends State<SearchList>
                               trailing: IconButton(
                                   icon: Icon(Icons.file_download),
                                   onPressed: () {
-                                    downloader.getAndDownloadYoutubeAudio(
-                                        content[index].videoId);
+                                    downloader.getAndDownloadYoutubeAudio(content[index].videoId);
                                   }));
                         }));
               } else {
@@ -134,8 +133,7 @@ class _SearchListState extends State<SearchList>
     List<Sub> theSubs = new List();
     ifChecked(Video vid) {
       if (vid.checked) {
-        theSubs
-            .add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked));
+        theSubs.add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked));
       }
     }
     content.forEach(ifChecked);
@@ -297,6 +295,15 @@ Future<List> search(String search, String type) async {
             video["snippet"]["channelTitle"],
             video["snippet"]["channelId"]));
       }
+    }
+    if(type == 'channel'){
+      List<String> ids = await getChannelIds();
+      videos.forEach((vid){
+        if(ids.contains(vid.channelId)){
+          vid.checked = true;
+        }
+      });
+
     }
     return videos;
   } else {

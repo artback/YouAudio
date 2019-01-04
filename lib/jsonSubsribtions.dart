@@ -30,6 +30,11 @@ Future<List<Sub>> getSubscribtionsFromFile() async {
     }
   return mySubs;
 }
+Future<List<String>> getChannelIds()async{
+  List<Sub> mySubs = await getSubscribtionsFromFile();
+  List<String> ids = mySubs.map((sub) => sub.channelId).toList();
+  return ids;
+}
 deleteFromFile(Sub sub) async {
   List<Sub> subs = await getSubscribtionsFromFile();
   List<String> ids = subs.map((sub) => sub.channelId).toList();
