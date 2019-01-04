@@ -23,7 +23,6 @@ dependencies:
   path_provider: ^0.4.1
   youtube_extractor: ^1.0.1
   youtube_parser: ^0.9.3
-  google_sign_in: ^3.2.4
   simple_permissions: ^0.1.9
   http: ^0.12.0
   audioplayer: ^0.5.2

@@ -74,6 +74,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                                     setState(() {
                                       mySubs[index].checked = value;
                                     });
+                                    writeToFile(mySubs);
                                   }),
                               onTap: (){
                                 Navigator.push(context,
@@ -91,12 +92,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                             ],
                             );
                           }),
-                  floatingActionButton: new FloatingActionButton(
-                    child: new Icon(Icons.save),
-                    onPressed: () {
-                      writeToFile(mySubs);
-                    },
-                  )
     )
     );
   }
