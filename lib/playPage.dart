@@ -106,7 +106,14 @@ class PlayState extends State<Play> {
           audioPlayerSingleton.files = files;
         })
     );
-    audioPlayerSingleton.delete(position);
+    audioPlayerSingleton.delete(position).then((empty){
+      if(empty){
+        setState(() {
+         duration = null;
+         position = 0;
+        });
+      }
+    });
   }
 
   _updateFiles(files){

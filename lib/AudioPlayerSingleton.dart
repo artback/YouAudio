@@ -37,7 +37,8 @@ class AudioPlayerSingleton{
     Random random = new Random();
     play(random.nextInt(files.length));
   }
-  Future delete(int index) async {
+  Future<bool> delete(int index) async {
+    bool empty =false;
     bool status = await SimplePermissions.checkPermission(
         Permission.WriteExternalStorage);
     while (!status) {
@@ -63,7 +64,9 @@ class AudioPlayerSingleton{
      current = null;
      audioPlayer.stop();
      hide();
+     empty = true;
    }
+    return empty;
   }
 
   void play(int index) async {

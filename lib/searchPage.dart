@@ -129,8 +129,13 @@ class _SearchListState extends State<SearchList>
             }));
   }
 
-  saveToSubscibtions(List<Video> content) {
+  saveToSubscibtions(List<Video> content, int index) {
     List<Sub> theSubs = new List();
+    if(content[index].checked == false){
+      Video vid = content[index];
+      Sub sub = new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked);
+      deleteFromFile(sub);
+    }
     ifChecked(Video vid) {
       if (vid.checked) {
         theSubs.add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked));
@@ -175,7 +180,7 @@ class _SearchListState extends State<SearchList>
                                       setState(() {
                                         content[index].checked = value;
                                       });
-                                      saveToSubscibtions(content);
+                                      saveToSubscibtions(content,index);
                                     }));
                           }),
                 );

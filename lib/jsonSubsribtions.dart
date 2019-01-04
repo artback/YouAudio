@@ -39,7 +39,6 @@ deleteFromFile(Sub sub) async {
   List<Sub> subs = await getSubscribtionsFromFile();
   List<String> ids = subs.map((sub) => sub.channelId).toList();
   int index = ids.indexOf(sub.channelId);
-  print(index);
   subs.removeAt(index);
   writeToFile(subs);
 }
