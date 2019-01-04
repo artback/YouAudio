@@ -31,6 +31,9 @@ dependencies:
   media_notification: ^0.0.5
   webfeed: ^0.4.1
   xml: ^3.2.3
+  url_launcher: ^4.0.3
+  sensors: ^0.3.5
+
 
 dev_dependencies:
   flutter_test:
