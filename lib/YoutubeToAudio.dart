@@ -39,7 +39,6 @@ class Downloader {
       url = 'https://www.youtube.com/watch?v=$url';
     }
     String jsonUrl = 'https://www.youtube.com/oembed?url=$url&format=json';
-    print("Json " + jsonUrl);
     getVideo(response) {
       Map videoMap = json.decode(response.body);
       Video video = Video.fromJson(videoMap);

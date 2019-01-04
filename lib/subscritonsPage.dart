@@ -2,6 +2,7 @@ import 'package:YouAudio/channelPage.dart';
 
 import 'package:YouAudio/dataModel/subscribtions.dart';
 import 'package:YouAudio/jsonSubsribtions.dart';import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -36,11 +37,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
     getData(subApi);
   }
   _getSubs(){
-      getSubscribtionsFromFile().then((value) =>
-          setState((){
+      getSubscribtionsFromFile().then((value) {
+        if(this.mounted) {
+          setState(() {
             mySubs = value;
-          })
-      );
+          });
+        }
+      });
   }
 
   @override
@@ -52,7 +55,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                   body: new ListView.builder(
                           itemCount: mySubs != null ? mySubs.length : 0  ,
                           itemBuilder: (BuildContext context, int index) {
-                            return ListTile(
+                            return Slidable(
+                             delegate: new SlidableDrawerDelegate(),
+                             actionExtentRatio: 0.2,
+                            child: ListTile(
                               title: RichText(
                                 text: new TextSpan(
                                 text: '${mySubs[index].title}',
@@ -74,6 +80,15 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                                     MaterialPageRoute(builder: (context) =>  new MyTabs(new ChannelPage(mySubs[index].channelId),1))
                                 );
                               },
+                            ),
+                            actions: <Widget>[
+                            new IconSlideAction(
+                            caption: 'Delete',
+                            color: Colors.red.shade900,
+                            icon: Icons.delete,
+                            onTap: () =>  delete(index),
+                            ),
+                            ],
                             );
                           }),
                   floatingActionButton: new FloatingActionButton(
@@ -84,6 +99,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage> {
                   )
     )
     );
+  }
+
+  delete(position) {
+    deleteFromFile(mySubs[position]);
   }
 }
 

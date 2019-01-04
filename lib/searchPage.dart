@@ -17,7 +17,6 @@ class SearchList extends StatefulWidget {
 
   @override
   _SearchListState createState() => new _SearchListState();
-
 }
 
 class _SearchListState extends State<SearchList>
@@ -61,7 +60,6 @@ class _SearchListState extends State<SearchList>
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -82,6 +80,7 @@ class _SearchListState extends State<SearchList>
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List content = snapshot.data;
+                
                 return new Container(
                     child: new ListView.builder(
                         itemCount: content.length,
@@ -131,11 +130,12 @@ class _SearchListState extends State<SearchList>
             }));
   }
 
-  saveToSubscibtions(List<Video> content){
+  saveToSubscibtions(List<Video> content) {
     List<Sub> theSubs = new List();
-    ifChecked(Video vid){
-      if(vid.checked){
-        theSubs.add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked)) ;
+    ifChecked(Video vid) {
+      if (vid.checked) {
+        theSubs
+            .add(new Sub(vid.title, vid.channelId, vid.thumbnail, vid.checked));
       }
     }
     content.forEach(ifChecked);
@@ -150,41 +150,37 @@ class _SearchListState extends State<SearchList>
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<Video> content = snapshot.data;
-                //print(content[0].title);
                 return new Container(
-                    child: new Scaffold(
-                        body:
-                        new ListView.builder(
-                        itemCount: content.length,
-                        itemExtent: 150.0,
-                        itemBuilder: (BuildContext context, int index) {
-                          //some titles were extremly long so i made a quick fix
-                          if (content[index].title.length > 25) {
-                            content[index].title =
-                                content[index].title.substring(0, 25) + "...";
-                          }
-
-                          return ListTile(
-                              leading: Image.network(content[index].thumbnail),
-                              title: RichText(
-                                  text: new TextSpan(
-                                text: '${content[index].title}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Colors.black),
-                              )),
-                              trailing: Checkbox(value: content[index].checked , onChanged: ( bool value) => setState(() {
-                                content[index].checked = value;
-                                })
-                              ));
-                        }),
-                        floatingActionButton: new FloatingActionButton(
-                          child: new Icon(Icons.save),
-                          onPressed: saveToSubscibtions(content) ,
-                        )
-                    ),
-                    );
+                  child: new ListView.builder(
+                          itemCount: content.length,
+                          itemExtent: 150.0,
+                          itemBuilder: (BuildContext context, int index) {
+                            //some titles were extremly long so i made a quick fix
+                            if (content[index].title.length > 25) {
+                              content[index].title =
+                                  content[index].title.substring(0, 25) + "...";
+                            }
+                            return ListTile(
+                                leading:
+                                    Image.network(content[index].thumbnail),
+                                title: RichText(
+                                    text: new TextSpan(
+                                  text: '${content[index].title}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: Colors.black),
+                                )),
+                                trailing: Checkbox(
+                                    value: content[index].checked,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        content[index].checked = value;
+                                      });
+                                      saveToSubscibtions(content);
+                                    }));
+                          }),
+                );
               } else {
                 return Text("${snapshot.error}");
               }
@@ -198,39 +194,37 @@ class _SearchListState extends State<SearchList>
       children: _buildSearchList(),
     );
   }
-  Widget _buildListTile(String path,int index){
-    onTap(){
+
+  Widget _buildListTile(String path, int index) {
+    onTap() {
       Navigator.of(context).pop();
       new AudioPlayerSingleton().play(index);
     }
-     return new ListTile(
-         title: new Text(path.split('/').last.split('.').first),
-         onTap: onTap
-     );
+
+    return new ListTile(
+        title: new Text(path.split('/').last.split('.').first), onTap: onTap);
   }
+
   List<Widget> _buildSearchList() {
     List<ListItem> _searchList = List();
-    if(_searchText.isEmpty) {
+    if (_searchText.isEmpty) {
       for (int i = 0; i < files.length; i++) {
-          _searchList.add(new ListItem(i, files[i].path));
-        }
+        _searchList.add(new ListItem(i, files[i].path));
+      }
     } else {
       for (int i = 0; i < files.length; i++) {
         String name = files.elementAt(i).path.split('/').last.split('.').first;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
           _searchList.add(new ListItem(i, name));
-
         }
       }
-
     }
     List<Widget> listTiles = new List();
-    for(int i = 0; i < _searchList.length; i++){
-       listTiles.add(_buildListTile(_searchList[i].name,_searchList[i].index));
+    for (int i = 0; i < _searchList.length; i++) {
+      listTiles.add(_buildListTile(_searchList[i].name, _searchList[i].index));
     }
-    return  listTiles;
+    return listTiles;
   }
-
 
   Widget buildBar(BuildContext context) {
     return new AppBar(
@@ -253,7 +247,6 @@ class _SearchListState extends State<SearchList>
           icon: Icon(Icons.search),
           onPressed: () {
             _SearchListState();
-            print(_searchText);
             setState(() {
               foundVideos = search(_searchText, "video");
               foundChannels = search(_searchText, "channel");
@@ -277,7 +270,6 @@ class ChildItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //print(index);
     return new ListTile(title: new Text(this.name));
   }
 }
@@ -303,9 +295,7 @@ Future<List> search(String search, String type) async {
             video["snippet"]["title"],
             video["snippet"]["thumbnails"]["default"]["url"],
             video["snippet"]["channelTitle"],
-            video["snippet"]["channelId"]
-        ));
-
+            video["snippet"]["channelId"]));
       }
     }
     return videos;
@@ -323,17 +313,13 @@ class Video {
   String channelTitle;
   bool checked = false;
 
-  Video(
-    this.videoId,
-    this.title,
-    this.thumbnail,
-    this.channelTitle,
-    this.channelId
-  );
+  Video(this.videoId, this.title, this.thumbnail, this.channelTitle,
+      this.channelId);
 }
 
-class ListItem{
+class ListItem {
   final int index;
   final String name;
+
   ListItem(this.index, this.name);
 }

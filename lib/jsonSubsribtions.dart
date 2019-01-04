@@ -17,19 +17,26 @@ Future<List<Sub>> getSubscribtionsFromFile() async {
     if (fileExists) {
       String file = _jsonFile.readAsStringSync();
       if(file.isNotEmpty) {
-        fileContent = json.decode(_jsonFile.readAsStringSync());
+        fileContent = json.decode(file);
         List filec = fileContent.values.first;
         filec.forEach((sub) =>
             mySubs.add(new Sub(
                 sub['title'], sub['channelId'], sub['img'], sub['checked'],
                 sub['description'])));
-        print(mySubs);
       }
     } else {
       createFile();
       mySubs = await getSubscribtionsFromFile();
     }
   return mySubs;
+}
+deleteFromFile(Sub sub) async {
+  List<Sub> subs = await getSubscribtionsFromFile();
+  List<String> ids = subs.map((sub) => sub.channelId).toList();
+  int index = ids.indexOf(sub.channelId);
+  print(index);
+  subs.removeAt(index);
+  writeToFile(subs);
 }
 void createFile() async{
   _dir = await getApplicationDocumentsDirectory();
@@ -59,7 +66,6 @@ Future addToFile(List<Sub> subs) async {
       mySubs.add(sub);
     }
   }
-  print(mySubs.length);
   subs.forEach(ifContains);
   writeToFile(mySubs);
 }
